@@ -1,0 +1,31 @@
+{
+  "name": "next-ant-supa-prisma",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "generate-models": "node generate-models.js"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.5.1",
+    "@ant-design/nextjs-registry": "^1.0.1",
+    "@prisma/client": "^5.21.1",
+    "@supabase/ssr": "^0.5.1",
+    "@supabase/supabase-js": "^2.45.5",
+    "antd": "^5.21.4",
+    "next": "14.2.15",
+    "prisma": "^5.21.1",
+    "react": "^18",
+    "react-dom": "^18"
+  },
+  "devDependencies": {
+    "@prisma/sdk": "^4.0.0",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "typescript": "^5"
+  }
+}
