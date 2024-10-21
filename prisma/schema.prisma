@@ -14,21 +14,24 @@ datasource db {
 }
 
 // Users 테이블: auth ID와 내부 ID를 따로 관리
-model Users {
+model User {
   auth      String   @unique  // auth.users.id에 해당하는 UUID (고유값으로 설정)
   id        Int      @id @default(autoincrement()) // 내부 자동 증가 ID
   username  String?
+  email     String?
   bio       String?
-  createdAt DateTime @default(now())
-  posts     Posts[]  // 사용자가 작성한 게시물들과의 관계
+  createdAt BitInt?  // 타임스템프
+  updatedAt BitInt?  // 타임스템프
+  posts     Post[]?  // 사용자가 작성한 게시물들과의 관계
 }
 
-// Posts 테이블: Users와 연결 + onDelete 설정
-model Posts {
+// Post 테이블: User와 연결 + onDelete 설정
+model Post {
   id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  createdAt DateTime @default(now())
-  user      Users    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int      // Users 테이블의 내부 id와 연결된 외래 키
+  title     String?
+  content   String?
+  createdAt BitInt?  // 타임스템프
+  updatedAt BitInt?  // 타임스템프
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    Int?      // Users 테이블의 내부 id와 연결된 외래 키
 }

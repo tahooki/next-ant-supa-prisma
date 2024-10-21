@@ -1,6 +1,6 @@
 'use client'
 
-import { supabase } from '@/lib/supabase-client'
+import { createClient } from '@/utils/supabase/client'
 import { Button, Form, Input, message } from 'antd'
 import React, { useState } from 'react'
 
@@ -11,6 +11,8 @@ const SignUpTemplate: React.FC = () => {
     setLoading(true)
     const { email, password, name } = values
 
+    const supabase = createClient()
+
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -20,7 +22,7 @@ const SignUpTemplate: React.FC = () => {
       if (error) throw error
 
       // Prisma를 통한 User 생성은 서버 사이드에서 처리해야 합니다.
-      const response = await fetch('/api/create-user', {
+      const response = await fetch('/api/auth/signup/email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

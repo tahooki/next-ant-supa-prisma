@@ -1,19 +1,22 @@
+import { Users } from "./users.model";
 
 export class Posts {
-  id: number;
-  title: string;
-  content: string;
-  createdAt: Date;
-  user: any;
-  userId: number;
+  id: number | null;
+  title: string | null;
+  content: string | null;
+  createdAt: number | null;
+  user: Users | null;
+  userId: number | null;
 
-  constructor(data) {
-    this.id = data.id;
-    this.title = data.title;
-    this.content = data.content;
-    this.createdAt = data.createdAt;
-    this.user = data.user;
-    this.userId = data.userId;
+  constructor(data: Partial<Posts>) {
+    this.id = data.id ?? null;
+    this.title = data.title ?? null;
+    this.content = data.content ?? null;
+    this.createdAt = data.createdAt ?? null;
+    if (data.user) {    
+      this.user = new Users(data.user);
+    }
+    this.userId = data.userId ?? null;
   }
 
   static getFieldMetadata() {

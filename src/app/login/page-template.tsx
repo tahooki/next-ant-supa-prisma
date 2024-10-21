@@ -18,7 +18,7 @@ export default function LoginTemplate() {
       formData.append('email', values.email);
       formData.append('password', values.password);
 
-      const response = await fetch('/api/login', {
+      const response = await fetch('/api/auth/login/email', {
         method: 'POST',
         body: formData,
       });
@@ -27,7 +27,7 @@ export default function LoginTemplate() {
 
       if (response.ok) {
         message.success('로그인 성공');
-        router.push('/dashboard');
+        window.location.href = '/';
       } else {
         throw new Error(data.error || '로그인에 실패했습니다.');
       }

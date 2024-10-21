@@ -12,35 +12,37 @@ async function generateModels() {
   if (fs.existsSync(modelsDir)) {
     fs.rmdirSync(modelsDir, { recursive: true });
   }
-  
+
   // models 디렉토리가 없으면 생성
   if (!fs.existsSync(modelsDir)) {
     fs.mkdirSync(modelsDir, { recursive: true });
   }
 
+  // 루트 폴더의 model.ts 파일을 models 폴더로 복사
+  fs.copyFileSync('./model.ts', path.join(modelsDir, 'model.ts'));
+
   const schema = fs.readFileSync(schemaPath, 'utf-8');
   const dmmf = await getDMMF({ datamodel: schema });
 
-  // 각 모델에 대해 클래스 파일을 생성합니다.
   dmmf.datamodel.models.forEach((model) => {
     const className = model.name;
     const fields = model.fields.map((field) => ({
       name: field.name,
       type: mapFieldType(field.type),
-      required: !field.isNullable,
-      readOnly: field.isId,
+      required: field.required,
+      readOnly: field.isReadOnly,
     }));
 
     // TypeScript 클래스 템플릿
     const classTemplate = `
-export class ${className} {
+export class ${className} extends Model {
   ${fields
-    .map((field) => `${field.name}${field.required ? '' : '?'}: ${field.type};`)
+    .map((field) => `${field.name}: ${field.type} | null;`)
     .join('\n  ')}
 
   constructor(data) {
     ${fields
-      .map((field) => `this.${field.name} = data.${field.name};`)
+      .map((field) => `this.${field.name} = data.${field.name} ?? null;`)
       .join('\n    ')}
   }
 
@@ -59,16 +61,27 @@ export class ${className} {
 
 // Prisma 타입을 TypeScript 타입으로 매핑
 function mapFieldType(prismaType) {
-  switch (prismaType) {
-    case 'Int':
-      return 'number';
-    case 'String':
-      return 'string';
-    case 'DateTime':
-      return 'Date';
-    default:
-      return 'any';
+  let result = '';
+
+  if (prismaType.includes('Int')) {
+    result = 'number';
+  } else if (prismaType.includes('String')) {
+    result = 'string';
+  } else if (prismaType.includes('Boolean')) {
+    result = 'boolean';
+  } else if (prismaType.includes('Float')) {
+    result = 'number';
+  } else if (prismaType.includes('BigInt')) {
+    result = 'number';
+  } else {
+    result = 'Object';
   }
+
+  if (prismaType.includes('[]')) {
+    result = `${result}[]`;
+  }
+
+  return result;
 }
 
 generateModels().catch(console.error);
