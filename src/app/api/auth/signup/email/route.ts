@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     const { username, supabaseUserId } = await request.json()
 
-    const user = await prisma.users.create({
+    const user = await prisma.user.create({
       data: {
         username,
         auth: supabaseUserId,
