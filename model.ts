@@ -7,7 +7,7 @@ export abstract class Model {
   abstract id: number | null;
 
   async create(data: any): Promise<any> {
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: any) => {
       const result = await (tx[this.tableName as keyof typeof tx] as any).create({
         data: this.prepareManyToManyData(data),
       });
@@ -17,7 +17,7 @@ export abstract class Model {
   }
 
   async update(id: number, data: any): Promise<any> {
-    return prisma.$transaction(async (tx) => {
+    return prisma.$transaction(async (tx: any) => {
       const result = await (tx[this.tableName as keyof typeof tx] as any).update({
         where: { id },
         data: this.prepareManyToManyData(data),
