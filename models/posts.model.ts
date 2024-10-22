@@ -1,20 +1,21 @@
-import { Users } from "./users.model";
+import { User } from "./users.model";
 
-export class Posts {
+export class Post {
   id: number | null;
   title: string | null;
   content: string | null;
   createdAt: number | null;
-  user: Users | null;
+  user: User | null;
   userId: number | null;
 
-  constructor(data: Partial<Posts>) {
+  constructor(data: Partial<Post>) {
     this.id = data.id ?? null;
     this.title = data.title ?? null;
     this.content = data.content ?? null;
     this.createdAt = data.createdAt ?? null;
+    this.user = null;
     if (data.user) {    
-      this.user = new Users(data.user);
+      this.user = new User(data.user);
     }
     this.userId = data.userId ?? null;
   }

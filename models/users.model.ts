@@ -1,17 +1,17 @@
 import { Model } from './model';
-import { Posts } from './posts.model';
+import { Post } from './posts.model';
 
 
-export class Users extends Model {
+export class User extends Model {
   tableName = 'user';
   auth: string | null;
   id: number | null;
   username: string | null;
   bio: string | null;
   createdAt: number | null;
-  posts?: Posts[] | null;
+  posts?: Post[] | null;
 
-  constructor(data: Partial<Users>) {
+  constructor(data: Partial<User>) {
     super();
     this.auth = data.auth ?? null;
     this.id = data.id ?? null;
@@ -62,18 +62,18 @@ export class Users extends Model {
     ];
   }
 
-  protected prepareManyToManyData(data: Partial<Users>): Partial<Users> {
+  protected prepareManyToManyData(data: Partial<User>): Partial<User> {
     const { posts, ...rest } = data;
     return rest;
   }
 
-  protected async handleManyToMany(tx: any, id: number, data: Partial<Users>): Promise<void> {
+  protected async handleManyToMany(tx: any, id: number, data: Partial<User>): Promise<void> {
     if (data.posts) {
       await tx.user.update({
         where: { id },
         data: {
           posts: {
-            set: data.posts.map(postId => ({ id: postId })),
+            set: data.posts.map((post: Post) => ({ id: post.id })),
           },
         },
       });
