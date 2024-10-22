@@ -20,9 +20,9 @@ model User {
   username  String?
   email     String?
   bio       String?
-  createdAt BitInt?  // 타임스템프
-  updatedAt BitInt?  // 타임스템프
-  posts     Post[]?  // 사용자가 작성한 게시물들과의 관계
+  createdAt BigInt?  // 타임스템프
+  updatedAt BigInt?  // 타임스템프
+  posts     Post[]  // 사용자가 작성한 게시물들과의 관계
 }
 
 // Post 테이블: User와 연결 + onDelete 설정
@@ -30,8 +30,8 @@ model Post {
   id        Int      @id @default(autoincrement())
   title     String?
   content   String?
-  createdAt BitInt?  // 타임스템프
-  updatedAt BitInt?  // 타임스템프
+  createdAt BigInt?  // 타임스템프
+  updatedAt BigInt?  // 타임스템프
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int?      // Users 테이블의 내부 id와 연결된 외래 키
 }
