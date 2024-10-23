@@ -19,7 +19,13 @@ const SignUpTemplate: React.FC = () => {
         password,
       })
 
-      if (error) throw error
+      if (error) {
+        if (error.message !== 'User already registered') {
+          throw error
+        }
+      }
+
+      console.log('data : ', data);
 
       // Prisma를 통한 User 생성은 서버 사이드에서 처리해야 합니다.
       const response = await fetch('/api/auth/signup/email', {
@@ -27,7 +33,7 @@ const SignUpTemplate: React.FC = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username: name, supabaseUserId: data.user?.id }),
+        body: JSON.stringify({ username: name, supabaseUserId: data.user?.id, email }),
       })
 
       if (!response.ok) {

@@ -1,55 +1,109 @@
-import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+type QueryParams = {
+  orderBy?: any;
+  page?: number;
+  pageSize?: number;
+  keyword?: string;
+  [key: string]: any;
+}
 
 export abstract class Model {
   abstract tableName: string;
   abstract id: number | null;
+  [key: string]: any; 
 
-  async create(data: any): Promise<any> {
-    return prisma.$transaction(async (tx: any) => {
-      const result = await (tx[this.tableName as keyof typeof tx] as any).create({
-        data: this.prepareManyToManyData(data),
-      });
-      await this.handleManyToMany(tx, result.id, data);
-      return result;
-    });
-  }
+  // GET 요청을 통해 목록을 조회하는 메서드
+  async list(queryParams: QueryParams): Promise<any[]> {
+    const { page, pageSize, ...params } = queryParams;
+    let query = new URLSearchParams();
 
-  async update(id: number, data: any): Promise<any> {
-    return prisma.$transaction(async (tx: any) => {
-      const result = await (tx[this.tableName as keyof typeof tx] as any).update({
-        where: { id },
-        data: this.prepareManyToManyData(data),
-      });
-      await this.handleManyToMany(tx, id, data);
-      return result;
+    if (page) query.append('page', page.toString());
+    if (pageSize) query.append('pageSize', pageSize.toString());
+
+    Object.keys(params).forEach((key) => {
+      query.append(key, params[key]);
     });
-  }
-  async delete(): Promise<any> {
-    if (!this.id) {
-      return null;
+
+    const response = await fetch(`/api/${this.tableName}?${query.toString()}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching list for ${this.tableName}`);
     }
-    return (prisma[this.tableName as keyof typeof prisma] as any).delete({
-      where: { id: this.id },
-    });
+
+    // 지금 모델로 변환해서 반환하기
+    const data = await response.json();
+
+    return data.map((item: any) => new (this.constructor as any)(item));
   }
 
+  // GET 요청을 통해 특정 항목을 조회하는 메서드
   async read(): Promise<any | null> {
     if (!this.id) {
-      return null;
+      throw new Error('ID is required to read');
     }
-    return (prisma[this.tableName as keyof typeof prisma] as any).findUnique({
-      where: { id: this.id },
-    })
+
+    const response = await fetch(`/api/${this.tableName}?id=${this.id}`);
+    
+    if (!response.ok) {
+      throw new Error(`Error fetching item with ID ${this.id} for ${this.tableName}`);
+    }
+
+    const data = await response.json();
+    
+    this.constructor(data);
+
+    return this;
   }
 
-  protected prepareManyToManyData(data: any): any {
-    // Override this method in child classes to handle ManyToMany relations
-    return data;
+  // POST 요청을 통해 새 항목을 생성하는 메서드
+  async create(data: any): Promise<any> {
+    const response = await fetch(`/api/${this.tableName}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error creating item for ${this.tableName}`);
+    }
+
+    return response.json();
   }
 
-  protected async handleManyToMany(tx: any, id: number, data: any): Promise<void> {
-    // Override this method in child classes to handle ManyToMany relations
+  // PUT 요청을 통해 항목을 업데이트하는 메서드
+  async update(id: number, data: any): Promise<any> {
+    const response = await fetch(`/api/${this.tableName}?id=${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error updating item with ID ${id} for ${this.tableName}`);
+    }
+
+    return response.json();
   }
+
+  // DELETE 요청을 통해 항목을 삭제하는 메서드
+  async delete(): Promise<any> {
+    if (!this.id) {
+      throw new Error('ID is required to delete');
+    }
+
+    const response = await fetch(`/api/${this.tableName}?id=${this.id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error deleting item with ID ${this.id} for ${this.tableName}`);
+    }
+
+    return response.ok;
+  }
+
 }

@@ -1,18 +1,27 @@
 import { PrismaClient } from '@prisma/client'
+import { User } from 'models/user.model'
 import { NextResponse } from 'next/server'
 
 const prisma = new PrismaClient()
 
 export async function POST(request: Request) {
   try {
-    const { username, supabaseUserId } = await request.json()
+    const { username, supabaseUserId, email } = await request.json()
 
-    const user = await prisma.user.create({
-      data: {
-        username,
-        auth: supabaseUserId,
-      },
-    })
+    console.log('username : ', username);
+    console.log('supabaseUserId : ', supabaseUserId);
+    console.log('email : ', email);
+
+    // 이미 존재하는 유저인지 확인
+    const existingUser = await prisma.user.findUnique({ where: { auth: supabaseUserId } });
+    
+    if (existingUser) {
+      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
+    }
+
+    const user = new User({ username, auth: supabaseUserId, email });
+    console.log('user : ', user);
+    await user.create();
 
     return NextResponse.json({ user }, { status: 201 })
   } catch (error) {

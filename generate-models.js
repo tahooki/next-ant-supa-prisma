@@ -24,30 +24,42 @@ async function generateModels() {
   const schema = fs.readFileSync(schemaPath, 'utf-8');
   const dmmf = await getDMMF({ datamodel: schema });
 
+  const metaFields = {};
+
   dmmf.datamodel.models.forEach((model) => {
+    console.log('dmmf model', model);
     const className = model.name;
     const fields = model.fields.map((field) => ({
-      name: field.name,
+      ...field,
       type: mapFieldType(field.type),
-      required: field.required,
-      readOnly: field.isReadOnly,
     }));
+
+    metaFields[className.toLowerCase()] = fields;
 
     // TypeScript 클래스 템플릿
     const classTemplate = `
+import { Model } from './model';
+import { metaFields } from './metafields';
+
 export class ${className} extends Model {
+  tableName = '${className.toLowerCase()}';
+
   ${fields
     .map((field) => `${field.name}: ${field.type} | null;`)
     .join('\n  ')}
 
-  constructor(data) {
-    ${fields
-      .map((field) => `this.${field.name} = data.${field.name} ?? null;`)
-      .join('\n    ')}
-  }
+  constructor(data: Partial<${className}> = {}) {
+    super();
 
-  static getFieldMetadata() {
-    return ${JSON.stringify(fields, null, 2)};
+    const metaFieldTableNames = Object.keys(metaFields);
+
+    metaFields.${className.toLowerCase()}.forEach((field) => {
+      if (metaFieldTableNames.includes(tableName) && data[field.name]) {
+        this[field.name] = new metaFields[tableName][[field.name].type](data[field.name]);
+      } else {
+        this[field.name] = data[field.name] ?? null;
+      }
+    });
   }
 }
 `;
@@ -57,11 +69,15 @@ export class ${className} extends Model {
     fs.writeFileSync(filePath, classTemplate, 'utf-8');
     console.log(`Generated: ${filePath}`);
   });
+
+  const metafieldsContent = `export const metaFields = ${JSON.stringify(metaFields, null, 2)};`;
+  fs.writeFileSync(path.join(modelsDir, 'metafields.ts'), metafieldsContent, 'utf-8');
+  console.log(`Generated: ${path.join(modelsDir, 'metafields.ts')}`);
 }
 
 // Prisma 타입을 TypeScript 타입으로 매핑
 function mapFieldType(prismaType) {
-  let result = '';
+  let result = prismaType;
 
   if (prismaType.includes('Int')) {
     result = 'number';
@@ -73,12 +89,8 @@ function mapFieldType(prismaType) {
     result = 'number';
   } else if (prismaType.includes('BigInt')) {
     result = 'number';
-  } else {
-    result = 'Object';
-  }
-
-  if (prismaType.includes('[]')) {
-    result = `${result}[]`;
+  } else if (prismaType.includes('DateTime')) {
+    result = 'string';
   }
 
   return result;
