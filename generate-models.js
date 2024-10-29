@@ -4,7 +4,7 @@ const path = require('path');
 
 // schema.prisma 파일을 읽습니다.
 const schemaPath = './prisma/schema.prisma';
-const modelsDir = './models';
+const modelsDir = './src/models';
 
 // DMMF(Data Model Meta Format)를 이용해 Prisma 모델 정보를 가져옵니다.
 async function generateModels() {

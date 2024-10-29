@@ -1,5 +1,5 @@
+import { User } from '@/models/user.model'
 import { PrismaClient } from '@prisma/client'
-import { User } from 'models/user.model'
 import { NextResponse } from 'next/server'
 
 const prisma = new PrismaClient()

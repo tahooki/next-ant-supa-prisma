@@ -1,18 +1,17 @@
 
-import { Layout } from 'antd';
 import { Inter } from 'next/font/google';
 
+
+import { User } from '@/models/user.model';
 import { createClient } from '@/utils/supabase/server';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import 'antd/dist/reset.css';
-import { User } from 'models/user.model';
 import React from 'react';
 import LayoutHeader from './(layout)/header';
 import './globals.css';
+import initAxios from './init-axios';
 
 const inter = Inter({ subsets: ['latin'] });
-
-const { Content, Footer } = Layout;
 
 export const metadata = {
   title: '당신의 앱 이름',
@@ -24,6 +23,9 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+  initAxios();
+
   const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
   let userModel: User | any | null = null;
@@ -40,9 +42,9 @@ export default async function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AntdRegistry>
-          <LayoutHeader user={userModel.toJSON()}></LayoutHeader>
+          <LayoutHeader user={userModel?.toJSON()}></LayoutHeader>
           {React.Children.map(children, child =>
-            React.cloneElement(child as React.ReactElement, { user: userModel.toJSON() })
+            React.cloneElement(child as React.ReactElement, { user: userModel?.toJSON() })
           )}
         </AntdRegistry>
       </body>

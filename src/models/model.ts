@@ -1,4 +1,7 @@
+import { createClient } from "@/utils/supabase/client";
+import axios from 'axios';
 import { metaFields } from "./metafields";
+
 
 type QueryParams = {
   orderBy?: any;
@@ -25,44 +28,44 @@ export abstract class Model {
       query.append(key, params[key]);
     });
 
-    const response = await fetch(`/api/${this.tableName}?${query.toString()}`);
-    
-    if (!response.ok) {
+    try {
+      const response = await axios.get(`/api/${this.tableName}?${query.toString()}`);
+      return response.data;
+    } catch (error) {
       throw new Error(`Error fetching list for ${this.tableName}`);
     }
-
-    return response.json();
   }
 
   // GET 요청을 통해 특정 항목을 조회하는 메서드
   async read(): Promise<Record<string, any> | null> {
     if (!(this.id || this.auth)) {
-      throw new Error('ID is required to read');
+      return null;
     }
-    let response: any;
 
-    if (this.auth) {
-      response = await fetch(`http://localhost:3000/api/${this.tableName}?auth=${this.auth}`);
-    } else {
-      response = await fetch(`http://localhost:3000/api/${this.tableName}?id=${this.id}`);
-    }
-    
-    if (!response.ok) {
+    try {
+      let response;
+      if (this.auth) {
+        response = await axios.get(
+          `/api/${this.tableName}?auth=${this.auth}`,
+        );
+      } else {
+        response = await axios.get(
+          `/api/${this.tableName}?id=${this.id}`,
+        );
+      }
+
+      Object.assign(this, response.data);
+      return this.toJSON();
+    } catch (error) {
+      const supabase = createClient();
+      await supabase.auth.signOut();
       throw new Error(`Error fetching item with ID ${this.id} for ${this.tableName}`);
     }
-
-    const data = await response.json();
-    
-    Object.assign(this, data);
-
-    // Return a plain object instead of 'this'
-    return this.toJSON();
   }
 
   // POST 요청을 통해 새 항목을 생성하는 메서드
   async create(): Promise<any> {
     if (!this.tableName) {
-      console.log('this.tableName : ', this.tableName);
       throw new Error('Table name is required to create');
     }
 
@@ -72,55 +75,47 @@ export abstract class Model {
 
     const body = this._getBody();
 
-    const response = await fetch(`http://localhost:3000/api/${this.tableName}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
+    try {
+      const response = await axios.post(
+        `/api/${this.tableName}`,
+        body,
+      );
+      return response.data;
+    } catch (error) {
       throw new Error(`Error creating item for ${this.tableName}`);
     }
-
-    return response.json();
   }
 
   // PUT 요청을 통해 항목을 업데이트하는 메서드
   async update(id: number): Promise<any> {
     const body = this._getBody();
 
-    const response = await fetch(`/api/${this.tableName}?id=${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    if (!response.ok) {
+    try {
+      const response = await axios.put(
+        `/api/${this.tableName}?id=${id}`,
+        body,
+        {
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+      return response.data;
+    } catch (error) {
       throw new Error(`Error updating item with ID ${id} for ${this.tableName}`);
     }
-
-    return response.json();
   }
 
   // DELETE 요청을 통해 항목을 삭제하는 메서드
-  async delete(): Promise<any> {
+  async delete(): Promise<boolean> {
     if (!this.id) {
       throw new Error('ID is required to delete');
     }
 
-    const response = await fetch(`/api/${this.tableName}?id=${this.id}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
+    try {
+      const response = await axios.delete(`/api/${this.tableName}?id=${this.id}`);
+      return response.status === 200;
+    } catch (error) {
       throw new Error(`Error deleting item with ID ${this.id} for ${this.tableName}`);
     }
-
-    return response.ok;
   }
 
   private _getBody() {

@@ -1,6 +1,6 @@
+import { metaFields } from '@/models/metafields';
 import { createClient } from '@/utils/supabase/server';
 import { PrismaClient } from '@prisma/client';
-import { metaFields } from 'models/metafields';
 import { NextRequest, NextResponse } from 'next/server';
 
 const prisma = new PrismaClient();
@@ -14,9 +14,8 @@ type QueryParams = {
 };
 
 // 목록을 조회하는 함수 (GET 요청)
-export async function GET(request: NextRequest, { params }: { params: { model: string } }) {
-  const model = params.model;
-  console.log('model : ', model);
+export async function GET(request: NextRequest, { params }: any) {
+  const { model } = await params;
 
   const queryParams: QueryParams = {
     keyword: request.nextUrl.searchParams.get('keyword') || undefined,
@@ -35,13 +34,15 @@ export async function GET(request: NextRequest, { params }: { params: { model: s
     acc[field.name] = field;
     return acc;
   }, {});
-
   if (!queryParams.page) {
     console.log('request.nextUrl.searchParams : ', request.nextUrl.searchParams.get('id'));
     if (!(request.nextUrl.searchParams.get('id') || request.nextUrl.searchParams.get('name') || request.nextUrl.searchParams.get('auth') || request.nextUrl.searchParams.get('email') || request.nextUrl.searchParams.get('title'))) {
       return NextResponse.json({ error: 'Invalid query parameters' }, { status: 400 });
     }
 
+    if (request.nextUrl.searchParams.get('id') === 'null') {
+      return NextResponse.json({ error: 'Invalid query parameters' }, { status: 400 });
+    }
     const where: any = {};
     for (const key in queryParams) {
       const metaField = metaDataObj[key];
@@ -55,10 +56,13 @@ export async function GET(request: NextRequest, { params }: { params: { model: s
       }
     }
 
+    console.log('where : ', where);
+
     try {
       const item = await (prisma[model as keyof typeof prisma] as any).findUnique({
         where,
       });
+
       return NextResponse.json(item);
     } catch (error) {
       return NextResponse.json({ error: 'Error fetching data' }, { status: 500 });
@@ -164,7 +168,7 @@ export async function GET(request: NextRequest, { params }: { params: { model: s
           where,
           orderBy,
           skip,
-          take: queryParams.pageSize,
+          take: Number(queryParams.pageSize),
         }),
       ]);
       return NextResponse.json({ totalCount, items });
@@ -237,8 +241,8 @@ export async function GET(request: NextRequest, { params }: { params: { model: s
 }
 
 // 새로운 항목을 생성하는 함수 (POST 요청)
-export async function POST(request: NextRequest, { params }: { params: { model: string } }) {
-  const model = params.model;
+export async function POST(request: NextRequest, { params }: any) {
+  const { model } = await params;
 
   console.log('model : ', model);
 
@@ -260,8 +264,8 @@ export async function POST(request: NextRequest, { params }: { params: { model: 
 }
 
 // 항목을 업데이트하는 함수 (PUT 요청)
-export async function PUT(request: NextRequest, { params }: { params: { model: string } }) {
-  const model = params.model;
+export async function PUT(request: NextRequest, { params }: any) {
+  const { model } = await params;
   const id = request.nextUrl.searchParams.get('id');
 
   if (!model || !(model in prisma)) {
@@ -289,7 +293,7 @@ export async function PUT(request: NextRequest, { params }: { params: { model: s
   });
 
   if (user.role !== 'admin') {
-    if (item?.userId !== user.id) {
+    if (item?.auth !== user.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   }
@@ -307,8 +311,8 @@ export async function PUT(request: NextRequest, { params }: { params: { model: s
 }
 
 // 항목을 삭제하는 함수 (DELETE 요청)
-export async function DELETE(request: NextRequest, { params }: { params: { model: string } }) {
-  const model = params.model;
+export async function DELETE(request: NextRequest, { params }: any) {
+  const { model } = await params;
   const id = request.nextUrl.searchParams.get('id');
 
   if (!model || !(model in prisma)) {

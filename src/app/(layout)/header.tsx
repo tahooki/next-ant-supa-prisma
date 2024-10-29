@@ -5,9 +5,6 @@ const LayoutHeader = ({user}: {user?: any}) => {
     {user && <div>
       {user?.email}
       <div>
-      {
-        user?.username
-      }
       </div>
       
     </div>}
