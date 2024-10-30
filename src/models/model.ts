@@ -1,4 +1,3 @@
-import { createClient } from "@/utils/supabase/client";
 import axios from 'axios';
 import { metaFields } from "./metafields";
 
@@ -44,6 +43,8 @@ export abstract class Model {
 
     try {
       let response;
+      console.log('this.auth : ', this.auth);
+      console.log('this.id : ', this.id);
       if (this.auth) {
         response = await axios.get(
           `/api/${this.tableName}?auth=${this.auth}`,
@@ -57,9 +58,11 @@ export abstract class Model {
       Object.assign(this, response.data);
       return this.toJSON();
     } catch (error) {
-      const supabase = createClient();
-      await supabase.auth.signOut();
-      throw new Error(`Error fetching item with ID ${this.id} for ${this.tableName}`);
+      console.log('error : ', error);
+      // const supabase = createClient();
+      // await supabase.auth.signOut();
+      // throw new Error(`Error fetching item with ID ${this.id} for ${this.tableName}`);
+      return null; // Add this line
     }
   }
 

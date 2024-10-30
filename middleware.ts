@@ -1,7 +1,9 @@
+import initAxios from '@/app/init-axios';
 import { updateSession } from '@/utils/supabase/middleware';
 import { type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
+  await initAxios();
   return await updateSession(request)
 }
 

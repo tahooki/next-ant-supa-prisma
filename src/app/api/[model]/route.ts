@@ -1,7 +1,7 @@
-import { metaFields } from '@/models/metafields';
 import { createClient } from '@/utils/supabase/server';
 import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
+import { metaFields } from '../../../models/metafields';
 
 const prisma = new PrismaClient();
 // QueryParams 타입 정의
@@ -16,6 +16,7 @@ type QueryParams = {
 // 목록을 조회하는 함수 (GET 요청)
 export async function GET(request: NextRequest, { params }: any) {
   const { model } = await params;
+  console.log('model : ', model, request.nextUrl.searchParams.get('id'));
 
   const queryParams: QueryParams = {
     keyword: request.nextUrl.searchParams.get('keyword') || undefined,
@@ -78,76 +79,68 @@ export async function GET(request: NextRequest, { params }: any) {
     }
   
     // getFieldMetadata 사용
+
+    const orConditions: any[] = [];
+    const andConditions: any = {};
   
     // 메타데이터를 기반으로 where 절 생성
     metadata.forEach((field: any) => {
       const { name, type } = field;
   
-      // Handle string fields with keyword search
+      // Handle string fields with keyword search (OR condition)
       if (type === 'string' && queryParams?.keyword) {
-        where = {
-          ...where,
+        orConditions.push({
           [name]: {
             contains: queryParams.keyword,
-          },
-        };
+            mode: 'insensitive'
+          }
+        });
+      }
+
+      // Direct field matching (AND condition)
+      if (queryParams[name] && name !== 'keyword') {
+        if (type === 'string') {
+          andConditions[name] = queryParams[name];
+        } else if (type === 'number') {
+          andConditions[name] = Number(queryParams[name]);
+        } else if (type === 'boolean') {
+          andConditions[name] = queryParams[name] === 'true';
+        }
       }
   
       // Handle range filters for "At" fields (dates)
       if (name.endsWith('At')) {
-        if (queryParams[`${name}_start`] && queryParams[`${name}_end`]) {
-          where = {
-            ...where,
-            [name]: {
-              gte: queryParams[`${name}_start`],
-              lte: queryParams[`${name}_end`],
-            },
-          };
-        } else if (queryParams[`${name}_start`]) {
-          where = {
-            ...where,
-            [name]: {
-              gte: queryParams[`${name}_start`],
-            },
-          };
-        } else if (queryParams[`${name}_end`]) {
-          where = {
-            ...where,
-            [name]: {
-              lte: queryParams[`${name}_end`],
-            },
-          };
+        if (queryParams[`${name}_start`] || queryParams[`${name}_end`]) {
+          andConditions[name] = {};
+          if (queryParams[`${name}_start`]) {
+            andConditions[name].gte = queryParams[`${name}_start`];
+          }
+          if (queryParams[`${name}_end`]) {
+            andConditions[name].lte = queryParams[`${name}_end`];
+          }
         }
       }
   
       // Handle numeric fields with gte/lte
       if (type === 'number') {
-        if (queryParams[`${name}_gte`]) {
-          where = {
-            ...where,
-            [name]: {
-              gte: queryParams[`${name}_gte`],
-            },
-          };
-        }
-        if (queryParams[`${name}_lte`]) {
-          where = {
-            ...where,
-            [name]: {
-              lte: queryParams[`${name}_lte`],
-            },
-          };
+        if (queryParams[`${name}_gte`] || queryParams[`${name}_lte`]) {
+          andConditions[name] = {};
+          if (queryParams[`${name}_gte`]) {
+            andConditions[name].gte = Number(queryParams[`${name}_gte`]);
+          }
+          if (queryParams[`${name}_lte`]) {
+            andConditions[name].lte = Number(queryParams[`${name}_lte`]);
+          }
         }
       }
-  
-      // Handle boolean fields
-      if (type === 'boolean' && queryParams[name] !== undefined) {
-        where = {
-          ...where,
-          [name]: queryParams[name] === 'true',
-        };
-      }
-    });  
+    });
+
+    // Combine OR and AND conditions
+    where = {
+      ...andConditions,
+      ...(orConditions.length > 0 ? { OR: orConditions } : {})
+    };
+
     // 정렬 조건 처리
     if (queryParams.orderBy) {
       orderBy = queryParams.orderBy.split(',').map((key: string) => {
@@ -157,6 +150,11 @@ export async function GET(request: NextRequest, { params }: any) {
         return { [key]: 'asc' };
       });
     }
+
+    console.log('where : ', where);
+    console.log('orderBy : ', orderBy);
+    console.log('skip : ', skip);
+    console.log('pageSize : ', Number(queryParams.pageSize));
   
     // 데이터베이스 조회
     try {
@@ -277,7 +275,7 @@ export async function PUT(request: NextRequest, { params }: any) {
   }
 
   // 자신의 아이디 조회
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const {
     data: { user },
@@ -324,7 +322,7 @@ export async function DELETE(request: NextRequest, { params }: any) {
   }
 
   // 자신의 아이디 조회
-  const supabase = createClient();
+  const supabase = await createClient();
   
   const {
     data: { user },

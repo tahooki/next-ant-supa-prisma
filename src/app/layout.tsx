@@ -2,14 +2,13 @@
 import { Inter } from 'next/font/google';
 
 
-import { User } from '@/models/user.model';
 import { createClient } from '@/utils/supabase/server';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import 'antd/dist/reset.css';
 import React from 'react';
+import { User } from '../models/user.model';
 import LayoutHeader from './(layout)/header';
 import './globals.css';
-import initAxios from './init-axios';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,14 +22,12 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-  initAxios();
-
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   let userModel: User | any | null = null;
   
-  if (user) {
+  if (user?.id) {
+    console.log('user : ', user);
     userModel = new User({
       auth: user?.id,
     });
