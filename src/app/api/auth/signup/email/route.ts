@@ -1,8 +1,10 @@
+import initAxios from '@/app/init-axios'
 import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { User } from '../../../../../models/user.model'
 
 const prisma = new PrismaClient()
+await initAxios();
 
 export async function POST(request: Request) {
   try {

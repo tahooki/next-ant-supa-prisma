@@ -1,6 +1,7 @@
+import initAxios from "@/app/init-axios";
+import axios from "axios";
 import { metaFields } from "../../../models/metafields";
 import AdminModelPageTemplate from "./page-template";
-
 const AdminModelPage = async ({params, searchParams}: any) => {
   const { model } = await params;
   const { ...queryParams } = await searchParams;
@@ -18,10 +19,12 @@ const AdminModelPage = async ({params, searchParams}: any) => {
     return <div>Invalid model</div>;
   }
 
-  console.log(model);
-  const data = await fetch(`http://localhost:3000/api/${model}?${newSearchParams.toString()}`);
-  const json = await data.json();
+  console.log('abcd',   model);
+  await initAxios();
+  const data = await axios.get(`/api/${model}?${newSearchParams.toString()}`);
+  const json = data.data;
   const items = json.items;
+  console.log('items', items);
   const totalCount = json.totalCount;
   return <AdminModelPageTemplate model={model} items={items} totalCount={totalCount} />;
 }

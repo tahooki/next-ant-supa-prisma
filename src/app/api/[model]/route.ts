@@ -82,11 +82,13 @@ export async function GET(request: NextRequest, { params }: any) {
 
     const orConditions: any[] = [];
     const andConditions: any = {};
-  
-    // 메타데이터를 기반으로 where 절 생성
-    metadata.forEach((field: any) => {
+    const ignoreFields: string[] = ['auth', 'createdAt', 'updatedAt'];
+
+    for (const field of metadata) {
       const { name, type } = field;
-  
+      if (ignoreFields.includes(name)) {
+        continue;
+      }
       // Handle string fields with keyword search (OR condition)
       if (type === 'string' && queryParams?.keyword) {
         orConditions.push({
@@ -133,7 +135,7 @@ export async function GET(request: NextRequest, { params }: any) {
           }
         }
       }
-    });
+    }
 
     // Combine OR and AND conditions
     where = {

@@ -1,7 +1,5 @@
-import initAxios from '@/app/init-axios';
 import axios from 'axios';
 import { metaFields } from "./metafields";
-
 
 type QueryParams = {
   orderBy?: any;
@@ -18,7 +16,6 @@ export abstract class Model {
 
   // GET 요청을 통해 목록을 조회하는 메서드
   async list(queryParams: QueryParams): Promise<any[]> {
-    await initAxios();
     const { page, pageSize, ...params } = queryParams;
     let query = new URLSearchParams();
 
@@ -39,8 +36,6 @@ export abstract class Model {
 
   // GET 요청을 통해 특정 항목을 조회하는 메서드
   async read(): Promise<Record<string, any> | null> {
-    await initAxios();
-
     if (!(this.id || this.auth)) {
       return null;
     }
@@ -79,7 +74,6 @@ export abstract class Model {
 
   // POST 요청을 통해 새 항목을 생성하는 메서드
   async create(): Promise<any> {
-    await initAxios();
     if (!this.tableName) {
       throw new Error('Table name is required to create');
     }
@@ -107,8 +101,6 @@ export abstract class Model {
 
   // patch 요청을 통해 항목을 업데이트하는 메서드
   async update(id: number): Promise<any> {
-    await initAxios();
-
     const body = this._getBody();
 
     try {
@@ -124,8 +116,6 @@ export abstract class Model {
 
   // DELETE 요청을 통해 항목을 삭제하는 메서드
   async delete(): Promise<boolean> {
-    await initAxios();
-    
     if (!this.id) {
       throw new Error('ID is required to delete');
     }

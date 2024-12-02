@@ -56,7 +56,7 @@ export function ModelFilter({ model }: ModelFilterProps) {
     switch (type) {
       case 'boolean':
         return (
-          <Form.Item label={name} name={name}>
+          <Form.Item key={name} label={name} name={name}>
             <Select
               allowClear
               placeholder="Select"
