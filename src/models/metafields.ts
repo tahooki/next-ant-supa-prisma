@@ -70,15 +70,47 @@ export const metaFields = {
       "isUpdatedAt": false
     },
     {
-      "name": "createdAt",
+      "name": "isActive",
       "kind": "scalar",
       "isList": false,
-      "isRequired": false,
+      "isRequired": true,
       "isUnique": false,
       "isId": false,
       "isReadOnly": false,
-      "hasDefaultValue": false,
-      "type": "number",
+      "hasDefaultValue": true,
+      "type": "boolean",
+      "default": true,
+      "isGenerated": false,
+      "isUpdatedAt": false
+    },
+    {
+      "name": "type",
+      "kind": "enum",
+      "isList": false,
+      "isRequired": true,
+      "isUnique": false,
+      "isId": false,
+      "isReadOnly": false,
+      "hasDefaultValue": true,
+      "type": "UserType",
+      "default": "USER",
+      "isGenerated": false,
+      "isUpdatedAt": false
+    },
+    {
+      "name": "createdAt",
+      "kind": "scalar",
+      "isList": false,
+      "isRequired": true,
+      "isUnique": false,
+      "isId": false,
+      "isReadOnly": false,
+      "hasDefaultValue": true,
+      "type": "string",
+      "default": {
+        "name": "now",
+        "args": []
+      },
       "isGenerated": false,
       "isUpdatedAt": false
     },
@@ -86,14 +118,14 @@ export const metaFields = {
       "name": "updatedAt",
       "kind": "scalar",
       "isList": false,
-      "isRequired": false,
+      "isRequired": true,
       "isUnique": false,
       "isId": false,
       "isReadOnly": false,
       "hasDefaultValue": false,
-      "type": "number",
+      "type": "string",
       "isGenerated": false,
-      "isUpdatedAt": false
+      "isUpdatedAt": true
     },
     {
       "name": "posts",
@@ -160,12 +192,16 @@ export const metaFields = {
       "name": "createdAt",
       "kind": "scalar",
       "isList": false,
-      "isRequired": false,
+      "isRequired": true,
       "isUnique": false,
       "isId": false,
       "isReadOnly": false,
-      "hasDefaultValue": false,
-      "type": "number",
+      "hasDefaultValue": true,
+      "type": "string",
+      "default": {
+        "name": "now",
+        "args": []
+      },
       "isGenerated": false,
       "isUpdatedAt": false
     },
@@ -173,14 +209,14 @@ export const metaFields = {
       "name": "updatedAt",
       "kind": "scalar",
       "isList": false,
-      "isRequired": false,
+      "isRequired": true,
       "isUnique": false,
       "isId": false,
       "isReadOnly": false,
       "hasDefaultValue": false,
-      "type": "number",
+      "type": "string",
       "isGenerated": false,
-      "isUpdatedAt": false
+      "isUpdatedAt": true
     },
     {
       "name": "user",

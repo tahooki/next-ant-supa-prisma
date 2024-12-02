@@ -14,5 +14,7 @@ export default async function initAxios() {
     baseUrl = window.location.origin;
   }
 
+  console.log('baseUrl : ', baseUrl);
+
   axios.defaults.baseURL = baseUrl;
 }

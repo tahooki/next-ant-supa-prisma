@@ -26,6 +26,14 @@ async function generateModels() {
 
   const metaFields = {};
 
+  const enums = dmmf.datamodel.enums.reduce((acc, enumType) => {
+    acc[enumType.name] = {
+      name: enumType.name,
+      values: enumType.values.map(v => v.name)
+    };
+    return acc;
+  }, {});
+
   dmmf.datamodel.models.forEach((model) => {
     console.log('dmmf model', model);
     const className = model.name;
@@ -34,7 +42,7 @@ async function generateModels() {
       type: mapFieldType(field.type),
     }));
 
-    metaFields[className.toLowerCase()] = fields;
+    metaFields[className.toLowerCase()] = model.fields;
 
     // TypeScript 클래스 템플릿
     const classTemplate = `
@@ -51,15 +59,9 @@ export class ${className} extends Model {
   constructor(data: Partial<${className}> = {}) {
     super();
 
-    const metaFieldTableNames = Object.keys(metaFields);
-
-    metaFields.${className.toLowerCase()}.forEach((field) => {
-      if (metaFieldTableNames.includes(tableName) && data[field.name]) {
-        this[field.name] = new metaFields[tableName][[field.name].type](data[field.name]);
-      } else {
-        this[field.name] = data[field.name] ?? null;
-      }
-    });
+    ${fields
+      .map((field) => `    this.${field.name} = data.${field.name} ?? null;`)
+      .join('\n    ')}
   }
 }
 `;
@@ -69,6 +71,8 @@ export class ${className} extends Model {
     fs.writeFileSync(filePath, classTemplate, 'utf-8');
     console.log(`Generated: ${filePath}`);
   });
+
+  metaFields.enums = enums;
 
   const metafieldsContent = `export const metaFields = ${JSON.stringify(metaFields, null, 2)};`;
   fs.writeFileSync(path.join(modelsDir, 'metafields.ts'), metafieldsContent, 'utf-8');

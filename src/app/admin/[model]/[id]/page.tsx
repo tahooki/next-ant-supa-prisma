@@ -9,13 +9,9 @@ const DetailPage = async ({ params }: any) => {
   let data = null;
   if (id !== 'new') {
     const modelInstance = getModelInstance(model);
-    console.log('modelInstance : ', params);
     modelInstance.id = parseInt(id);
-    console.log('modelInstance.id : ', modelInstance);
     data = await modelInstance.read();
   }
-
-  console.log('data : 1212', data, data?.bio);
 
   return <DetailPageTemplate model={model} initialData={data} isNew={id === 'new'} />;
 };

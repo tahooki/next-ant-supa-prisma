@@ -1,3 +1,4 @@
+import initAxios from '@/app/init-axios';
 import axios from 'axios';
 import { metaFields } from "./metafields";
 
@@ -9,7 +10,7 @@ type QueryParams = {
   keyword?: string;
   [key: string]: any;
 }
-
+   
 export abstract class Model {
   abstract tableName: string;
   abstract id: number | null;
@@ -17,6 +18,7 @@ export abstract class Model {
 
   // GET 요청을 통해 목록을 조회하는 메서드
   async list(queryParams: QueryParams): Promise<any[]> {
+    await initAxios();
     const { page, pageSize, ...params } = queryParams;
     let query = new URLSearchParams();
 
@@ -37,6 +39,8 @@ export abstract class Model {
 
   // GET 요청을 통해 특정 항목을 조회하는 메서드
   async read(): Promise<Record<string, any> | null> {
+    await initAxios();
+
     if (!(this.id || this.auth)) {
       return null;
     }
@@ -66,8 +70,16 @@ export abstract class Model {
     }
   }
 
+  save() {
+    if (this.id) {
+      return this.update(this.id);
+    }
+    return this.create();
+  }
+
   // POST 요청을 통해 새 항목을 생성하는 메서드
   async create(): Promise<any> {
+    await initAxios();
     if (!this.tableName) {
       throw new Error('Table name is required to create');
     }
@@ -78,6 +90,9 @@ export abstract class Model {
 
     const body = this._getBody();
 
+    console.log('body : ', body);
+    console.log('this.tableName : ', this.tableName);
+
     try {
       const response = await axios.post(
         `/api/${this.tableName}`,
@@ -85,21 +100,21 @@ export abstract class Model {
       );
       return response.data;
     } catch (error) {
+      console.log('error : ', error);
       throw new Error(`Error creating item for ${this.tableName}`);
     }
   }
 
-  // PUT 요청을 통해 항목을 업데이트하는 메서드
+  // patch 요청을 통해 항목을 업데이트하는 메서드
   async update(id: number): Promise<any> {
+    await initAxios();
+
     const body = this._getBody();
 
     try {
-      const response = await axios.put(
+      const response = await axios.patch(
         `/api/${this.tableName}?id=${id}`,
-        body,
-        {
-          headers: { 'Content-Type': 'application/json' }
-        }
+        body
       );
       return response.data;
     } catch (error) {
@@ -109,6 +124,8 @@ export abstract class Model {
 
   // DELETE 요청을 통해 항목을 삭제하는 메서드
   async delete(): Promise<boolean> {
+    await initAxios();
+    
     if (!this.id) {
       throw new Error('ID is required to delete');
     }

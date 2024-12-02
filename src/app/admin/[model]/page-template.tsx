@@ -1,5 +1,6 @@
 "use client";
 
+import { ModelFilter } from '@/components/ModelFilter';
 import { Button, Input, Table } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -44,6 +45,7 @@ const AdminModelPageTemplate = ({model, items, totalCount}: {model: string, item
       <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>{model} 모델 데이터</h2>
         <div style={{ display: 'flex', gap: '8px' }}>
+          <ModelFilter model={model} />
           <Input.Search
             placeholder="검색어를 입력하세요"
             allowClear

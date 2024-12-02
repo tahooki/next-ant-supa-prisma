@@ -13,6 +13,12 @@ datasource db {
   url      = env("NEXT_PUBLIC_DATABASE_URL")
 }
 
+enum UserType {
+  ADMIN
+  USER
+  GUEST
+}
+
 // Users 테이블: auth ID와 내부 ID를 따로 관리
 model User {
   auth      String   @unique  // auth.users.id에 해당하는 UUID (고유값으로 설정)
@@ -20,6 +26,8 @@ model User {
   username  String?
   email     String?
   bio       String?
+  isActive  Boolean  @default(true)
+  type      UserType @default(USER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   posts     Post[]  // 사용자가 작성한 게시물들과의 관계
@@ -33,5 +41,5 @@ model Post {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId    Int?      // Users 테이블의 내부 id와 연결된 외래 키
+  userId    Int?     // Users 테이블의 내부 id와 연결된 외래 키
 }

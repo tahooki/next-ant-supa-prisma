@@ -21,11 +21,11 @@ export async function POST(request: Request) {
 
     const user = new User({ username, auth: supabaseUserId, email });
     console.log('user : ', user);
-    await user.create();
+    await user.save();
 
     return NextResponse.json({ user }, { status: 201 })
   } catch (error) {
-    console.error('Error creating user:', error)
+    console.log('Error creating user:', error)
     return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
   } finally {
     await prisma.$disconnect()
