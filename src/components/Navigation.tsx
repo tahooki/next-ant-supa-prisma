@@ -1,5 +1,6 @@
 'use client';
 
+import { metaFields } from '@/models/metafields';
 import { Layout, Menu } from 'antd';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -14,6 +15,9 @@ export default function Navigation() {
     { key: '/login', label: <Link href="/login">로그인</Link> },
     { key: '/signup', label: <Link href="/signup">회원가입</Link> },
   ];
+  Object.keys(metaFields).forEach(model => {
+    items.push({ key: `/${model}`, label: <Link href={`/${model}`}>{model}</Link> });
+  });
 
   return (
     <Header>

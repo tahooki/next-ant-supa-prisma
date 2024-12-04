@@ -35,8 +35,6 @@ const DetailPageTemplate = ({
   }, [initialData, form]);
 
   const onFinish = async (values: any) => {
-    console.log('values : ', values);
-
     try {
       const modelInstance = getModelInstance(model);
       Object.assign(modelInstance, values);
@@ -93,7 +91,7 @@ const DetailPageTemplate = ({
 
       case 'number':
         return (
-          <Form.Item {...commonProps} key={field.name} normalize={(value) => (value ? Number(value) : null)}>
+          <Form.Item {...commonProps} key={field.name}>
             <Input type="number" />
           </Form.Item>
         );
@@ -103,7 +101,7 @@ const DetailPageTemplate = ({
         if (LONG_TEXT_FIELDS.includes(field.name)) {
           return (
             <Form.Item {...commonProps} key={index}>
-              <TextArea rows={4} value={initialData?.[field.name] || ''} />
+              <TextArea rows={4} value={initialData[field.name]} />
             </Form.Item>
           );
         }

@@ -250,21 +250,17 @@ export async function POST(request: NextRequest, { params }: any) {
     return NextResponse.json({ error: 'Invalid model' }, { status: 400 });
   }
 
-  try {
-    const data = await request.json();
-    console.log('data : ', data);
-    const newItem = await (prisma[model as keyof typeof prisma] as any).create({
-      data,
-    });
-    return NextResponse.json(newItem, { status: 201 });
-  } catch (error) {
-    console.log('create error : ', error);
-    return NextResponse.json({ error: 'Error creating item' }, { status: 500 });
-  }
+  const data = await request.json();
+  console.log('data : ', data);
+  
+  const newItem = await (prisma[model as keyof typeof prisma] as any).create({
+    data,
+  });
+  return NextResponse.json(newItem, { status: 201 });
 }
 
-// 항목을 업데이트하는 함수 (PUT 요청)
-export async function PUT(request: NextRequest, { params }: any) {
+// 항목을 업데이트하는 함수 (PATCH 요청)
+export async function PATCH(request: NextRequest, { params }: any) {
   const { model } = await params;
   const id = request.nextUrl.searchParams.get('id');
 
