@@ -21,7 +21,7 @@ const SignUpTemplate: React.FC = () => {
 
       console.log('error : ', error);
 
-      if (error?.includes('User already registered')) {
+      if (error?.message?.includes('User already registered')) {
         throw error
       }
 

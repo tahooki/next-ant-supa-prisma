@@ -1,10 +1,10 @@
 "use client";
 
+import { metaFields } from "@/models/metafields";
 import { getModelInstance } from "@/utils/model-helper";
 import { Button, Form, Input, Select, Switch, message } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { metaFields } from "../../../../models/metafields";
 
 const { TextArea } = Input;
 
