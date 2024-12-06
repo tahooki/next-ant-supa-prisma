@@ -1,9 +1,9 @@
 
 import { UserType } from '@prisma/client';
-import { Image } from './image.model';
+import { ImageModel } from './image.model';
 import { Model } from './model';
-import { Post } from './post.model';
-export class User extends Model {
+import { PostModel } from './post.model';
+export class UserModel extends Model {
   tableName = 'user';
 
   auth: string | null;
@@ -15,12 +15,12 @@ export class User extends Model {
   type: UserType | null;
   createdAt: string | null;
   updatedAt: string | null;
-  posts: Post[] | null;
-  profileImage: Image | null;
+  posts: PostModel[] | null;
+  profileImage: ImageModel | null;
   profileImageId: number | null;
-  images: Image[] | null;
+  images: ImageModel[] | null;
 
-  constructor(data: Partial<User> = {}) {
+  constructor(data: Partial<UserModel> = {}) {
     super();
 
         this.auth = data.auth ?? null;

@@ -1,8 +1,8 @@
 
-import { Image } from './image.model';
+import { ImageModel } from './image.model';
 import { Model } from './model';
-import { User } from './user.model';
-export class Post extends Model {
+import { UserModel } from './user.model';
+export class PostModel extends Model {
   tableName = 'post';
 
   id: number | null;
@@ -10,11 +10,11 @@ export class Post extends Model {
   content: string | null;
   createdAt: string | null;
   updatedAt: string | null;
-  images: Image[] | null;
-  user: User | null;
+  images: ImageModel[] | null;
+  user: UserModel | null;
   userId: number | null;
 
-  constructor(data: Partial<Post> = {}) {
+  constructor(data: Partial<PostModel> = {}) {
     super();
 
         this.id = data.id ?? null;

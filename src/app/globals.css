@@ -1,3 +1,10 @@
+
+@import "quill/dist/quill.snow.css";
+
+.ql-editor[contenteditable="true"] iframe {
+  pointer-events: none;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

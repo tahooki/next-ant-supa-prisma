@@ -1,6 +1,5 @@
 'use client'
 
-import { createClient } from '@/utils/supabase/client'
 import { Button, Form, Input, message } from 'antd'
 import axios from 'axios'
 import React, { useState } from 'react'
@@ -11,31 +10,15 @@ const SignUpTemplate: React.FC = () => {
     setLoading(true)
     const { email, password, name } = values
 
-    const supabase = createClient()
-
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const response = await axios.post('/api/auth/signup/email', {
         email,
         password,
-      })
-
-      console.log('error : ', error);
-
-      if (error?.message?.includes('User already registered')) {
-        throw error
-      }
-
-      console.log('data : ', data);
-
-      // Prisma를 통한 User 생성은 서버 사이드에서 처리해야 합니다.
-      const response = await axios.post('/api/auth/signup/email', {
         username: name,
-        supabaseUserId: data.user?.id,
-        email,
       })
 
       if (response.status !== 200) {
-        throw new Error('Failed to create user in database')
+        throw new Error('Failed to sign up')
       }
 
       message.success('회원가입이 완료되었습니다.')

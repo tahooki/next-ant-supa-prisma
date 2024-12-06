@@ -1,5 +1,7 @@
+import { ImageModel } from "@/models/image.model";
 import { base64StringToBlob } from "blob-util";
 import dataURLtoBlob from "dataurl-to-blob";
+import { upload } from "./supabase/upload";
 
 export function getImageFile() {
   return new Promise((r) => {
@@ -80,4 +82,13 @@ export const base64ToImageFile = (
       ].join("");
 
   const file = new File([blobString], filename, { type });
+};
+
+export const uploadImage = async (file: File) => {
+  const url = await upload(file, "nasp");
+  const image = new ImageModel();
+  image.url = url as string;
+  image.name = file.name as string;
+  await image.save();
+  return image;
 };

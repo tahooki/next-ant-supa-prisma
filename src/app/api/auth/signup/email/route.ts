@@ -1,35 +1,47 @@
 import initAxios from '@/app/init-axios'
+import { createClient } from '@/utils/supabase/server'
 import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
-import { User } from '../../../../../models/user.model'
 
 const prisma = new PrismaClient()
 await initAxios();
 
 export async function POST(request: Request) {
   try {
-    const { username, supabaseUserId, email } = await request.json()
+    const { email, password, username } = await request.json()
+    const supabase = await createClient()
 
-    console.log('username : ', username);
-    console.log('supabaseUserId : ', supabaseUserId);
-    console.log('email : ', email);
+    // 1. Supabase 회원가입
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+    })
 
-    // 이미 존재하는 유저인지 확인
-    const existingUser = await prisma.user.findUnique({ where: { auth: supabaseUserId } });
-    
-    if (existingUser) {
-      return NextResponse.json({ error: 'User already exists' }, { status: 400 });
+    if (authError) throw authError
+
+    try {
+      // 2. Prisma DB에 사용자 생성
+      await prisma.user.create({
+        data: {
+          username,
+          email,
+          auth: authData.user!.id,
+        },
+      })
+
+      return NextResponse.json({ success: true })
+    } catch (error) {
+      // 3. Prisma DB 생성 실패시 Supabase 사용자 삭제
+      if (authData.user?.id) {
+        await supabase.auth.admin.deleteUser(authData.user.id)
+      }
+      throw error
     }
-
-    const user = new User({ username, auth: supabaseUserId, email });
-    console.log('user : ', user);
-    await user.save();
-
-    return NextResponse.json({ user }, { status: 201 })
   } catch (error) {
-    console.log('Error creating user:', error)
-    return NextResponse.json({ error: 'Failed to create user' }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
+    console.error('Error in signup:', error)
+    return NextResponse.json(
+      { error: 'Failed to create user' },
+      { status: 400 }
+    )
   }
 }

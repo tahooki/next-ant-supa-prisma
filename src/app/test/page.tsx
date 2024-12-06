@@ -1,6 +1,6 @@
 'use client';
 
-import { Image } from "@/models/image.model";
+import { ImageModel } from "@/models/image.model";
 import { upload } from "@/utils/supabase/upload";
 import { useState } from "react";
 
@@ -31,7 +31,7 @@ export default function TestPage() {
         }
       });
 
-      const image = new Image();
+      const image = new ImageModel();
       image.url = url as string;
       image.name = selectedImage.name;
       await image.save();

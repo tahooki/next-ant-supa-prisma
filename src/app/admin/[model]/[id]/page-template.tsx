@@ -1,5 +1,7 @@
 "use client";
 
+import QuillEditor from "@/components/QuillEditor/QuillEditor";
+import { ImageModel } from "@/models/image.model";
 import { getModelInstance } from "@/utils/model-helper";
 import { Button, Form, Input, Select, Switch, message } from 'antd';
 import { useRouter } from 'next/navigation';
@@ -32,6 +34,8 @@ const DetailPageTemplate = ({
       console.log('initialData', initialData)
       // form.setFieldsValue(initialData);
     }
+
+    console.log('fields : ', fields);
   }, [initialData, form]);
 
   const onFinish = async (values: any) => {
@@ -78,9 +82,13 @@ const DetailPageTemplate = ({
       ],
     };
 
+    const onUploadImage = async (image: ImageModel) => {
+      console.log('image : ', image);
+    }
+
     // 필드 타입에 따른 컴포넌트 렌더링
     switch (field.type) {
-      case 'boolean':
+      case 'Boolean':
         return (
           <Form.Item
             {...commonProps}
@@ -91,19 +99,21 @@ const DetailPageTemplate = ({
           </Form.Item>
         );
 
-      case 'number':
+      case 'Int':
         return (
           <Form.Item {...commonProps} key={field.name} normalize={(value) => (value ? Number(value) : null)}>
             <Input type="number" />
           </Form.Item>
         );
 
-      case 'string':
+      case 'String':
         // 긴 텍스트가 필요한 필드인 경우
         if (LONG_TEXT_FIELDS.includes(field.name)) {
           return (
             <Form.Item {...commonProps} key={index}>
-              <TextArea rows={4} value={initialData?.[field.name] || ''} />
+              <QuillEditor 
+                onUploadImage={onUploadImage}
+              />
             </Form.Item>
           );
         }

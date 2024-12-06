@@ -1,5 +1,4 @@
-import { getImageFile, rotateCorrectOrientation } from "@/utils/image.util";
-import axios from "axios";
+import { getImageFile, rotateCorrectOrientation, uploadImage } from "@/utils/image.util";
 import Quill from "quill";
 import { useQuill } from "react-quilljs";
 
@@ -16,7 +15,6 @@ type Props = {
   value?: string;
   onChange?: (text: string) => void;
   onUploadImage: (image: any) => void;
-  uploadUrl: string;
 };
 // //
 
@@ -41,7 +39,6 @@ export default function QuillEditor({
   value,
   onChange,
   onUploadImage,
-  uploadUrl, // api/upload/images/
 }: Props) {
   const { quill, quillRef, Quill }: any = useQuill({
     modules: {
@@ -79,28 +76,28 @@ export default function QuillEditor({
     },
   });
 
-  const uploadImage = async (file: File) => {
-    const formData = new FormData();
-    console.log("updateKey", updateKey);
-    console.log("updateId", updateId);
-    if (updateKey && updateId) {
-      formData.append(updateKey, updateId);
-    }
-    formData.append("image", file);
-    console.log(
-      "`${process.env.NEXT_PUBLIC_API_URL}${uploadUrl}`",
-      `${process.env.NEXT_PUBLIC_API_URL}${uploadUrl}`
-    );
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}${uploadUrl}`,
-      formData
-    );
+  // const uploadImage = async (file: File) => {
+  //   const formData = new FormData();
+  //   console.log("updateKey", updateKey);
+  //   console.log("updateId", updateId);
+  //   if (updateKey && updateId) {
+  //     formData.append(updateKey, updateId);
+  //   }
+  //   formData.append("image", file);
+  //   console.log(
+  //     "`${process.env.NEXT_PUBLIC_API_URL}${uploadUrl}`",
+  //     `${process.env.NEXT_PUBLIC_API_URL}${uploadUrl}`
+  //   );
+  //   const response = await axios.post(
+  //     `${process.env.NEXT_PUBLIC_API_URL}${uploadUrl}`,
+  //     formData
+  //   );
 
-    const data = await response.data;
-    console.log(data);
-    // 업로드한 이미지
-    return data;
-  };
+  //   const data = await response.data;
+  //   console.log(data);
+  //   // 업로드한 이미지
+  //   return data;
+  // };
 
   // 업로드한 이미지를 나열한다. afterUpdateList
 
@@ -115,9 +112,9 @@ export default function QuillEditor({
         const index =
           (quill.getSelection() || {}).index || quill.getLength() || 0;
 
-        const url = image.image;
+        const url = image.url;
         if (url != null) {
-          quill.insertEmbed(index, "image", image.image, "user");
+          quill.insertEmbed(index, "image", url, "user");
         }
       });
       quill

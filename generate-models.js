@@ -49,14 +49,14 @@ async function generateModels() {
 import { Model } from './model';
 import { metaFields } from './metafields';
 
-export class ${className} extends Model {
+export class ${className}Model extends Model {
   tableName = '${className.toLowerCase()}';
 
   ${fields
     .map((field) => `${field.name}: ${field.type} | null;`)
     .join('\n  ')}
 
-  constructor(data: Partial<${className}> = {}) {
+  constructor(data: Partial<${className}Model> = {}) {
     super();
 
     ${fields
