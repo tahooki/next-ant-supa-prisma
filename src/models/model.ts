@@ -130,7 +130,7 @@ export abstract class Model {
 
   private _getBody() {
     const body = { ...this };
-    const getMetadataObj = metaFields[this.tableName as keyof typeof metaFields].reduce((acc: any, cur: any) => {
+    const getMetadataObj = Object.values(metaFields[this.tableName as keyof typeof metaFields]).reduce((acc: any, cur: any) => {
       acc[cur.name] = cur;
       return acc;
     }, {});
