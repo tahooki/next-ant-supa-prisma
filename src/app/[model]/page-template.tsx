@@ -9,7 +9,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 const AdminModelPageTemplate = ({model, items, totalCount}: {model: string, items: any[], totalCount: number}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const fields = metaFields[model as keyof typeof metaFields];
+  const fields: any = metaFields[model as keyof typeof metaFields];
 
   const handleSearch = (value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -24,7 +24,7 @@ const AdminModelPageTemplate = ({model, items, totalCount}: {model: string, item
   };
 
   const columns: ColumnsType<any> = [
-    ...(fields?.map(field => ({
+    ...(fields?.map((field: any) => ({
       title: field.name,
       dataIndex: field.name,
       key: field.name,
@@ -39,7 +39,7 @@ const AdminModelPageTemplate = ({model, items, totalCount}: {model: string, item
       ),
     },
   ];
-`~~`
+
   return (
     <div style={{ padding: '20px' }}>
       <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

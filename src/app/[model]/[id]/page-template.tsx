@@ -25,7 +25,7 @@ const DetailPageTemplate = ({
 }) => {
   const [form] = Form.useForm();
   const router = useRouter();
-  const fields = metaFields[model as keyof typeof metaFields];
+  const fields: any = metaFields[model as keyof typeof metaFields];
 
   useEffect(() => {
     if (initialData) {
@@ -163,7 +163,7 @@ const DetailPageTemplate = ({
         onFinish={onFinish}
         initialValues={initialData}
       >
-        {fields.map((field, index) => renderFormInput(field, index))}
+        {fields.map((field: any, index: number) => renderFormInput(field, index))}
         
         <Form.Item>
           <Button type="primary" htmlType="submit">

@@ -1,4 +1,4 @@
-export const metaFields = {
+export const metaFields: any = {
   "user": [
     {
       "name": "auth",
