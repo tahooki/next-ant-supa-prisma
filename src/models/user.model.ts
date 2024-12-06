@@ -1,7 +1,8 @@
 
+import { UserType } from '@prisma/client';
+import { Image } from './image.model';
 import { Model } from './model';
-import { metaFields } from './metafields';
-
+import { Post } from './post.model';
 export class User extends Model {
   tableName = 'user';
 
@@ -14,10 +15,10 @@ export class User extends Model {
   type: UserType | null;
   createdAt: string | null;
   updatedAt: string | null;
-  posts: Post | null;
+  posts: Post[] | null;
   profileImage: Image | null;
   profileImageId: number | null;
-  images: Image | null;
+  images: Image[] | null;
 
   constructor(data: Partial<User> = {}) {
     super();

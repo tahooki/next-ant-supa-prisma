@@ -165,7 +165,7 @@ const DetailPageTemplate = ({
         onFinish={onFinish}
         initialValues={initialData}
       >
-        {fields.map((field, index) => renderFormInput(field, index))}
+        {fields.map((field: any, index: number) => renderFormInput(field, index))}
         
         <Form.Item>
           <Button type="primary" htmlType="submit">

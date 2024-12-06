@@ -1,7 +1,7 @@
 
+import { Image } from './image.model';
 import { Model } from './model';
-import { metaFields } from './metafields';
-
+import { User } from './user.model';
 export class Post extends Model {
   tableName = 'post';
 
@@ -10,7 +10,7 @@ export class Post extends Model {
   content: string | null;
   createdAt: string | null;
   updatedAt: string | null;
-  images: Image | null;
+  images: Image[] | null;
   user: User | null;
   userId: number | null;
 

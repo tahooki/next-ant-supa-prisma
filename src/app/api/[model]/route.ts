@@ -31,7 +31,7 @@ export async function GET(request: NextRequest, { params }: any) {
   }
 
   const metadata = metaFields[model.toLowerCase() as keyof typeof metaFields];
-  const metaDataObj = Object.values(metadata).reduce((acc: any, field: any) => {
+  const metaDataObj = metadata.reduce((acc: any, field: any) => {
     acc[field.name] = field;
     return acc;
   }, {});
@@ -84,8 +84,8 @@ export async function GET(request: NextRequest, { params }: any) {
     const andConditions: any = {};
     const ignoreFields: string[] = ['auth', 'createdAt', 'updatedAt'];
 
-    for (const field of Object.values(metadata)) {
-      const { name, type } = field;
+    for (const field of metadata) {
+      const { name, type }: any = field;
       if (ignoreFields.includes(name)) {
         continue;
       }

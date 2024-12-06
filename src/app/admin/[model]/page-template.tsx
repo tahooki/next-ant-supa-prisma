@@ -24,7 +24,7 @@ const AdminModelPageTemplate = ({model, items, totalCount}: {model: string, item
   };
 
   const columns: ColumnsType<any> = [
-    ...(fields?.map(field => ({
+    ...(fields?.map((field: any) => ({
       title: field.name,
       dataIndex: field.name,
       key: field.name,
