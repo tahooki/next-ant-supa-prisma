@@ -7,6 +7,9 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "supabase:push": "npx supabase db push",
     "generate-models": "node generate-models.js"
   },
   "dependencies": {

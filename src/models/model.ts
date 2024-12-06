@@ -1,5 +1,5 @@
+import { metaFields } from "@/models/metafields";
 import axios from 'axios';
-import { metaFields } from "./metafields";
 
 type QueryParams = {
   orderBy?: any;

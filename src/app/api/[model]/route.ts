@@ -31,7 +31,7 @@ export async function GET(request: NextRequest, { params }: any) {
   }
 
   const metadata = metaFields[model.toLowerCase() as keyof typeof metaFields];
-  const metaDataObj = metadata.reduce((acc: any, field: any) => {
+  const metaDataObj = Object.values(metadata).reduce((acc: any, field: any) => {
     acc[field.name] = field;
     return acc;
   }, {});
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest, { params }: any) {
     const andConditions: any = {};
     const ignoreFields: string[] = ['auth', 'createdAt', 'updatedAt'];
 
-    for (const field of metadata) {
+    for (const field of Object.values(metadata)) {
       const { name, type } = field;
       if (ignoreFields.includes(name)) {
         continue;
@@ -244,7 +244,7 @@ export async function GET(request: NextRequest, { params }: any) {
 export async function POST(request: NextRequest, { params }: any) {
   const { model } = await params;
 
-  console.log('model : ', model);
+  console.log('model : ', model, Object.keys(prisma));
 
   if (!model || !(model in prisma)) {
     return NextResponse.json({ error: 'Invalid model' }, { status: 400 });

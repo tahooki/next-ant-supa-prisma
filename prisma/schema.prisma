@@ -31,6 +31,9 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   posts     Post[]  // 사용자가 작성한 게시물들과의 관계
+  profileImage Image? @relation("UserProfile")
+  profileImageId Int? @unique
+  images    Image[] @relation("UserImages")
 }
 
 // Post 테이블: User와 연결 + onDelete 설정
@@ -40,6 +43,22 @@ model Post {
   content   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  images    Image[]  @relation("PostImages")
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    Int?     // Users 테이블의 내부 id와 연결된 외래 키
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  name      String
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userProfile    User?   @relation("UserProfile", fields: [userProfileId], references: [id], onDelete: Cascade)
+  userProfileId  Int?    @unique
+  user          User?   @relation("UserImages", fields: [userId], references: [id], onDelete: Cascade)
+  userId        Int?
+  post          Post?   @relation("PostImages", fields: [postId], references: [id], onDelete: Cascade)
+  postId        Int?
 }
