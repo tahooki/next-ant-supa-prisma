@@ -2,6 +2,7 @@
 import { Inter } from 'next/font/google';
 
 
+import { UserModel } from '@/models/user.model';
 import { createClient } from '@/utils/supabase/server';
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import 'antd/dist/reset.css';
@@ -17,6 +18,11 @@ export const metadata = {
   title: '당신의 앱 이름',
   description: '당신의 앱 설명',
 };
+
+type ChildProps = {
+  user?: typeof UserModel;
+};
+
 
 export default async function RootLayout({
   children,
@@ -47,10 +53,13 @@ export default async function RootLayout({
       <body className={inter.className}>
         <AntdRegistry>
           <LayoutHeader user={userModel}></LayoutHeader>
-          {React.Children.map(children, child =>
-            React.cloneElement(child as React.ReactElement, { user: userModel })
-          )}
-        </AntdRegistry>
+          {React.Children.map(children, child => {
+            if (React.isValidElement<ChildProps>(child)) {
+              return React.cloneElement<ChildProps>(child, { user: userModel });
+            }
+            return child;
+          })}
+        </AntdRegistry> 
       </body>
     </html>
   );

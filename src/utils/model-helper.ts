@@ -3,14 +3,14 @@ import { Model } from "../models/model";
 import { PostModel } from "../models/post.model";
 import { UserModel } from "../models/user.model";
 
-export function getModelInstance(modelName: string): Model {
+export function getModelInstance(modelName: string, params: any = {}): Model {
   switch (modelName.toLowerCase()) {
     case 'user':
-      return new UserModel();
+      return new UserModel(params);
     case 'post':
-      return new PostModel();
+      return new PostModel(params);
     case 'image':
-      return new ImageModel();
+      return new ImageModel(params);
     default:
       throw new Error(`Unknown model: ${modelName}`);
   }

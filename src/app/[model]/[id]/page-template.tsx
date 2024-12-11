@@ -4,7 +4,7 @@ import { metaFields } from "@/models/metafields";
 import { getModelInstance } from "@/utils/model-helper";
 import { Button, Form, Input, Select, Switch, message } from 'antd';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const { TextArea } = Input;
 
@@ -26,24 +26,22 @@ const DetailPageTemplate = ({
   const [form] = Form.useForm();
   const router = useRouter();
   const fields: any = metaFields[model as keyof typeof metaFields];
+  const [modelInstance, setModelInstance] = useState<any>(null);
 
   useEffect(() => {
-    if (initialData) {
-      console.log('initialData', initialData)
-      // form.setFieldsValue(initialData);
-    }
+    const instance = getModelInstance(model);
+    setModelInstance(instance);
   }, [initialData, form]);
 
   const onFinish = async (values: any) => {
     try {
-      const modelInstance = getModelInstance(model);
       Object.assign(modelInstance, values);
 
-      if (isNew) {
+      if (modelInstance?.id === undefined) {
         await modelInstance.create();
         message.success('생성되었습니다.');
       } else {
-        await modelInstance.update(initialData.id);
+        await modelInstance.update();
         message.success('수정되었습니다.');
       }
       

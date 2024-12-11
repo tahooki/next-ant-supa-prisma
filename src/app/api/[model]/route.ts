@@ -50,7 +50,7 @@ export async function GET(request: NextRequest, { params }: any) {
       if (!metaField) {
         continue;
       }
-      if (metaField.type === 'number') {
+      if (metaField.type === 'Int') {
         where[key] = Number(queryParams[key]);
       } else {
         where[key] = queryParams[key];

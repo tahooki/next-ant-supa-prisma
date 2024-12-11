@@ -67,7 +67,7 @@ export abstract class Model {
 
   save() {
     if (this.id) {
-      return this.update(this.id);
+      return this.update();
     }
     return this.create();
   }
@@ -100,17 +100,21 @@ export abstract class Model {
   }
 
   // patch 요청을 통해 항목을 업데이트하는 메서드
-  async update(id: number): Promise<any> {
+  async update(): Promise<any> {
+    if (!this.id) {
+      throw new Error('ID is required to update');
+    }
+
     const body = this._getBody();
 
     try {
       const response = await axios.patch(
-        `/api/${this.tableName}?id=${id}`,
+        `/api/${this.tableName}?id=${this.id}`,
         body
       );
       return response.data;
     } catch (error) {
-      throw new Error(`Error updating item with ID ${id} for ${this.tableName}`);
+      throw new Error(`Error updating item with ID ${this.id} for ${this.tableName}`);
     }
   }
 

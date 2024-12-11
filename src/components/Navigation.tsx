@@ -15,7 +15,7 @@ export default function Navigation() {
     { key: '/login', label: <Link href="/login">로그인</Link> },
     { key: '/signup', label: <Link href="/signup">회원가입</Link> },
   ];
-  Object.keys(metaFields).forEach(model => {
+  Object.keys(metaFields).filter(model => model !== 'enums').forEach(model => {
     items.push({ key: `/${model}`, label: <Link href={`/${model}`}>{model}</Link> });
   });
 
