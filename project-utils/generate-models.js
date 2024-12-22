@@ -3,8 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 // schema.prisma 파일을 읽습니다.
-const schemaPath = './prisma/schema.prisma';
-const modelsDir = './src/models';
+const schemaPath = '../prisma/schema.prisma';
+const modelsDir = '../src/models';
 
 // DMMF(Data Model Meta Format)를 이용해 Prisma 모델 정보를 가져옵니다.
 async function generateModels() {
@@ -46,8 +46,8 @@ async function generateModels() {
 
     // TypeScript 클래스 템플릿
     const classTemplate = `
-import { Model } from './model';
-import { metaFields } from './metafields';
+import { Model } from '@/models/model';
+import { metaFields } from '@/models/metafields';
 
 export class ${className}Model extends Model {
   tableName = '${className.toLowerCase()}';

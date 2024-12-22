@@ -1,6 +1,6 @@
 "use client";
 
-import QuillEditor from "@/components/QuillEditor/QuillEditor";
+import QuillEditor from "@/components/quillEditor/quillEditor";
 import { ImageModel } from "@/models/image.model";
 import { getModelInstance } from "@/utils/model-helper";
 import { Button, Form, Input, Select, Switch, message } from 'antd';

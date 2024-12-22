@@ -42,7 +42,7 @@ function generateApiRoute(model) {
 
   const content = `
 import { NextRequest, NextResponse } from 'next/server';
-import { ${model.name} } from '../../../../models/${routeName}.model';
+import { ${model.name} } from '@/models/${routeName}.model';
 
 export async function GET(request: NextRequest) {
   const id = request.nextUrl.searchParams.get('id');

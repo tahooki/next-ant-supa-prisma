@@ -1,6 +1,6 @@
 "use client";
 
-import { ModelFilter } from "@/components/ModelFilter";
+import { ModelFilter } from "@/components/modelFilter";
 import { Button, Input, Table } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -23,9 +23,9 @@ const AdminModelPageTemplate = ({
     const params = new URLSearchParams(searchParams.toString());
 
     if (value) {
-      params.set("keyword", value);
+      params.set("search2", value);
     } else {
-      params.delete("keyword");
+      params.delete("search2");
     }
 
     router.push(`/admin/${model}?${params.toString()}`);

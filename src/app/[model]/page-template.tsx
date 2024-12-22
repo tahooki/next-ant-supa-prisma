@@ -1,6 +1,6 @@
 "use client";
 
-import { ModelFilter } from '@/components/ModelFilter';
+import { ModelFilter } from '@/components/modelFilter';
 import { metaFields } from "@/models/metafields";
 import { Button, Input, Table } from 'antd';
 import { ColumnsType } from 'antd/es/table';

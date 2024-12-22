@@ -19,12 +19,12 @@ const AdminModelPage = async ({params, searchParams}: any) => {
     return <div>Invalid model</div>;
   }
 
-  console.log('abcd',   model);
+
   await initAxios();
   const data = await axios.get(`/api/${model}?${newSearchParams.toString()}`);
   const json = data.data;
   const items = json.items;
-  console.log('items', items);
+
   const totalCount = json.totalCount;
   return <AdminModelPageTemplate model={model} items={items} totalCount={totalCount} />;
 }
