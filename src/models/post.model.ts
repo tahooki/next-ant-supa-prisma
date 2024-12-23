@@ -12,7 +12,6 @@ export interface Post {
   images: ImageModel[] | null;
   user: UserModel | null;
   userId: number | null;
-  mainImage: string | null;
 }
 
 export class PostModel extends Model implements Post {
@@ -25,7 +24,6 @@ export class PostModel extends Model implements Post {
   images: ImageModel[] | null;
   user: UserModel | null;
   userId: number | null;
-  mainImage: string | null;
   
   constructor(data: Partial<PostModel> = {}) {
     super();
@@ -37,6 +35,5 @@ export class PostModel extends Model implements Post {
       this.images = data.images ?? null;
       this.user = data.user ?? null;
       this.userId = data.userId ?? null;
-      this.mainImage = data.mainImage ?? null;
   }
 }

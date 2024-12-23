@@ -32,13 +32,18 @@ const DetailPageTemplate = ({
   const [modelInstance, setModelInstance] = useState<any>(null);
 
   useEffect(() => {
-    const instance = getModelInstance(model);
+    if (!initialData) {
+      initialData = {};
+    }
+    const instance = getModelInstance(model, initialData);
     setModelInstance(instance);
   }, [initialData, form]);
 
   const onFinish = async (values: any) => {
     try {
       Object.assign(modelInstance, values);
+
+      console.log('modelInstance : ', modelInstance);
 
       if (modelInstance?.id === undefined) {
         await modelInstance.create();
@@ -79,6 +84,11 @@ const DetailPageTemplate = ({
 
     const onUploadImage = async (image: ImageModel) => {
       console.log('image : ', image);
+      if (modelInstance.images) {
+        modelInstance.images.push(image);
+      } else {
+        modelInstance.images = [image];
+      }
     }
 
     // 필드 타입에 따른 컴포넌트 렌더링

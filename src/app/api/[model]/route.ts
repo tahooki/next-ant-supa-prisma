@@ -59,13 +59,25 @@ export async function GET(request: NextRequest, { params }: any) {
 
     console.log('where : ', where);
 
+    // include에 해당 metafields의 model의 key값중 relationName이 있으면 포함
+    const include: any = {};
+    for (const field of metadata) {
+      const { name, relationName }: any = field;
+      if (relationName) {
+        include[name] = true;
+      }
+    }
+
+    console.log('include : ', include);
     try {
       const item = await (prisma[model as keyof typeof prisma] as any).findUnique({
         where,
+        include,
       });
 
       return NextResponse.json(item);
     } catch (error) {
+      console.log('error : ', error);
       return NextResponse.json({ error: 'Error fetching data' }, { status: 500 });
     }
 
@@ -262,6 +274,8 @@ export async function POST(request: NextRequest, { params }: any) {
 // 항목을 업데이트하는 함수 (PATCH 요청)
 export async function PATCH(request: NextRequest, { params }: any) {
   const { model } = await params;
+  const data = await request.json();
+  console.log('data : ', data);
   const id = request.nextUrl.searchParams.get('id');
 
   if (!model || !(model in prisma)) {
@@ -284,24 +298,54 @@ export async function PATCH(request: NextRequest, { params }: any) {
   }
 
   //해당 데이터 한번 불러와서 같은 유저인지 확인하기
-  const item = await (prisma[model as keyof typeof prisma] as any).findUnique({
-    where: { id: Number(id) },
-  });
+  // params에 userId가 있으면 
+  let query: any = {
+    where: { id: Number(id) }
+  };
+  console.log('data : ', data);
+  
+  if (data?.userId) {
+    query = {
+      where: { id: Number(id) },
+      include: {
+        user: {
+          select: {
+            auth: true,
+          }
+        }  // 사용자 정보를 포함
+      }
+    }
+  }
+
+  const item = await (prisma[model as keyof typeof prisma] as any).findUnique(query);
+
+  console.log('item : ', item, user);
 
   if (user.role !== 'admin') {
-    if (item?.auth !== user.id) {
+    if (!(item?.auth === user.id || item?.user?.auth === user.id)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
   }
 
+  const updateQuery: any = {
+    where: { id: Number(id) },
+    data,
+  }
+
+  for (const key in data) {
+    // array 인 경우 해당 key에 object {set: [id]}
+    if (Array.isArray(data[key])) {
+      updateQuery.data[key] = { set: data[key] };
+    }
+  }
+
+  console.log('updateQuery : ', updateQuery, updateQuery?.data.images);
+
   try {
-    const data = await request.json();
-    const updatedItem = await (prisma[model as keyof typeof prisma] as any).update({
-      where: { id: Number(id) },
-      data,
-    });
+    const updatedItem = await (prisma[model as keyof typeof prisma] as any).update(updateQuery);
     return NextResponse.json(updatedItem);
   } catch (error) {
+    console.log('error : ', error);
     return NextResponse.json({ error: 'Error updating item' }, { status: 500 });
   }
 }

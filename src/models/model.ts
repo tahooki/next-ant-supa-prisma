@@ -67,18 +67,19 @@ export abstract class Model {
 
   save() {
     if (this.id) {
-      return this.update(this.id);
+      return this.update();
     }
     return this.create();
   }
 
   // POST 요청을 통해 새 항목을 생성하는 메서드
   async create(): Promise<any> {
+    console.log('create this.tableName : ', this.tableName);
     if (!this.tableName) {
       throw new Error('Table name is required to create');
     }
 
-    if (this.id) {
+    if (this?.id) {
       throw new Error('ID is not allowed to create');
     }
 
@@ -92,7 +93,11 @@ export abstract class Model {
         `/api/${this.tableName}`,
         body,
       );
-      return response.data;
+      const data = response.data;
+      for (const key in data) {
+        this[key] = data[key];
+      }
+      return this;
     } catch (error) {
       console.log('error : ', error);
       throw new Error(`Error creating item for ${this.tableName}`);
@@ -100,12 +105,16 @@ export abstract class Model {
   }
 
   // patch 요청을 통해 항목을 업데이트하는 메서드
-  async update(id: number): Promise<any> {
+  async update(): Promise<any> {
+    console.log('update started : ', this.tableName);
     const body = this._getBody();
+
+    console.log('body : ', body);
+    console.log('this.tableName : ', this.tableName);
 
     try {
       const response = await axios.patch(
-        `/api/${this.tableName}?id=${id}`,
+        `/api/${this.tableName}?id=${this.id}`,
         body
       );
       return response.data;
@@ -135,9 +144,14 @@ export abstract class Model {
       return acc;
     }, {});
 
+    console.log('getBody : ', getMetadataObj);
+
     for (const key in body) {
       if (key === 'id' && body[key] === null) {
         delete body[key];
+      }
+      if (key === 'content') {
+        this._setImagesWithContent();
       }
       if (body[key] === undefined) {
         delete body[key];
@@ -150,7 +164,16 @@ export abstract class Model {
       }
       
       if (getMetadataObj[key] && !!getMetadataObj[key]?.relationName) {
-        delete body[key];
+        if (getMetadataObj[key]?.isList) {
+          body[key] = body[key].map((item: any) => { 
+            if (item.id) {
+              return { id: item.id };
+            }
+           });
+        } else {
+          body[`${key}Id`] = body[key]?.id || null;
+          delete body[key];
+        }
       }
 
       if (key === 'createdAt' || key === 'updatedAt') {
@@ -169,5 +192,18 @@ export abstract class Model {
       }
     }
     return plainObject;
+  }
+
+  _setImagesWithContent(): void {
+    if (!this?.images || !this?.content) {
+      return;
+    }
+
+    for (let index = this.images.length - 1; index >= 0; index--) {
+      const imageItem = this.images[index];
+      if (this.content.includes(imageItem.url)) {
+        this.images.splice(index, 1);
+      }
+    }
   }
 }

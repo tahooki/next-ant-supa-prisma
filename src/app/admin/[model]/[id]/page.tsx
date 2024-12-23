@@ -13,6 +13,8 @@ const DetailPage = async ({ params }: any) => {
     data = await modelInstance.read();
   }
 
+  console.log('data : ', data);
+
   return <DetailPageTemplate model={model} initialData={data} isNew={id === 'new'} />;
 };
 
