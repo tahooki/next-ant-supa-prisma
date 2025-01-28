@@ -1,36 +1,121 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Auto CRUD Generator
+
+A Next.js-based framework that builds a complete CRUD system just by defining the schema.
+
+## Introduction
+
+This project is a tool that automatically generates CRUD functionality based on Prisma schema. Developers only need to define the data model, and the rest is handled automatically.
+
+## Key Features
+
+- ⚡️ Automatic CRUD generation based on Prisma schema
+- 🎨 Admin UI generation with Ant Design
+- 🔄 Automatic API route generation
+- 📝 TypeScript type generation
+- 🔐 Supabase authentication integration
 
 ## Getting Started
 
-First, run the development server:
+### 1. Define Schema
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Define your data model in `prisma/schema.prisma`:
+
+```prisma
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Generate Models
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+node project-utils/generate-models.js
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This command generates:
 
-## Learn More
+- TypeScript model classes
+- Metafield definitions
+- Type definitions
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Generate Routes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+node project-utils/generate-model-route/generate-route.js [model] --type [type]
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Type options:
 
-## Deploy on Vercel
+- `card`: Card-style list view
+- `line`: Line-style list view
+- `image`: Image gallery style list view
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To generate routes for all models at once:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+node project-utils/generate-model-route/generate-route.js all
+```
+
+## Generated File Structure
+
+```
+src/
+├── models/
+│   ├── [model].model.ts     # Model class
+│   ├── model.ts             # Base model class
+│   └── metafields.ts        # Metafield definitions
+└── app/
+    └── [model]/
+        ├── (components)/
+        │   ├── form-template.tsx  # Create/Edit form
+        │   └── item.tsx          # List item
+        ├── [id]/
+        │   ├── edit/
+        │   │   └── page.tsx      # Edit page
+        │   └── page.tsx          # Detail page
+        ├── create.tsx            # Create page
+        └── page.tsx              # List page
+```
+
+## Auto-Generated Features
+
+### 1. Model Class
+
+- Basic CRUD operation methods
+- TypeScript type support
+- Relational data handling
+
+### 2. API Routes
+
+- GET: List and single item retrieval
+- POST: Create new items
+- PATCH: Update items
+- DELETE: Remove items
+
+### 3. UI Components
+
+- List views (Card/Line/Image format)
+- Detail view
+- Create/Edit forms
+- Responsive design
+
+## Tech Stack
+
+- [Next.js](https://nextjs.org/)
+- [Prisma](https://www.prisma.io/)
+- [Supabase](https://supabase.com/)
+- [Ant Design](https://ant.design/)
+- [TypeScript](https://www.typescriptlang.org/)
+
+## Contributing
+
+Bug reports, feature suggestions, and pull requests are welcome!
+
+## License
+
+MIT License
