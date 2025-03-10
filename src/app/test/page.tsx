@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
+import { upload } from "@/lib/supabase/upload";
 import { ImageModel } from "@/models/image.model";
-import { upload } from "@/utils/supabase/upload";
 import { useState } from "react";
 
 export default function TestPage() {
@@ -18,7 +18,7 @@ export default function TestPage() {
 
   const handleUpload = async () => {
     if (!selectedImage) return;
-    
+
     setIsLoading(true);
     try {
       // 'images' 는 Supabase storage bucket 이름입니다
@@ -28,14 +28,14 @@ export default function TestPage() {
             (progressEvent.loaded * 100) / (progressEvent.total ?? 1)
           );
           console.log(`Upload Progress: ${percentCompleted}%`);
-        }
+        },
       });
 
       const image = new ImageModel();
       image.url = url as string;
       image.name = selectedImage.name;
       await image.save();
-      console.log('image', image);
+      console.log("image", image);
 
       // 업로드된 이미지 URL 생성
       setUploadedImageUrl(image.url);
@@ -50,7 +50,7 @@ export default function TestPage() {
   return (
     <div className="p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">이미지 업로드 테스트</h1>
-      
+
       <div className="space-y-4">
         <div>
           <input
@@ -84,4 +84,4 @@ export default function TestPage() {
       </div>
     </div>
   );
-} 
+}

@@ -61,3 +61,24 @@ model Image {
   post          Post?   @relation("PostImages", fields: [postId], references: [id], onDelete: Cascade)
   postId        Int?
 }
+
+model ErrorLog {
+  id          String         @id @default(cuid())
+  timestamp   DateTime       @default(now())
+  errorMessage String
+  stackTrace  String?
+  endpoint    String
+  method      String
+  requestData Json?
+  statusCode  Int?
+  severity    ErrorSeverity  @default(LOW)
+  environment String
+  resolved    Boolean        @default(false)
+  resolvedAt  DateTime?
+  userId      String?
+  user        User?          @relation(fields: [userId], references: [id])
+
+  @@index([timestamp])
+  @@index([severity])
+  @@index([resolved])
+}

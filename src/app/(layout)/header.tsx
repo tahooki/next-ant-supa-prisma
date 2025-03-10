@@ -1,7 +1,7 @@
 "use client";
 
 import Navigation from "@/components/navigation";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "antd";
 
 const supabase = await createClient();

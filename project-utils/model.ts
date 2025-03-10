@@ -11,8 +11,28 @@ type QueryParams = {
 
 export abstract class Model {
   abstract tableName: string;
-  abstract id: number | null;
   [key: string]: any;
+
+  // identifier를 추상 메서드에서 구현된 getter로 변경
+  get identifier(): string | number | undefined {
+    const metadata = metaFields[
+      this.tableName as keyof typeof metaFields
+    ] as any[];
+    if (!metadata) return undefined;
+
+    // id 필드가 있으면 id를 사용
+    const idField = metadata.find((field: any) => field.name === "id");
+    if (idField) {
+      return this.id;
+    }
+    // id가 없으면 name을 사용
+    const nameField = metadata.find((field: any) => field.name === "name");
+    if (nameField) {
+      return this.name;
+    }
+    // 둘 다 없으면 첫 번째 필드를 사용
+    return this[metadata[0].name];
+  }
 
   // GET 요청을 통해 목록을 조회하는 메서드
   async list(queryParams: QueryParams): Promise<any[]> {
@@ -38,33 +58,30 @@ export abstract class Model {
 
   // GET 요청을 통해 특정 항목을 조회하는 메서드
   async read(): Promise<Record<string, any> | null> {
-    if (!(this.id || this.auth)) {
+    if (!(this.identifier || this.auth)) {
       return null;
     }
 
     try {
       let response;
-      console.log("this.auth : ", this.auth);
-      console.log("this.id : ", this.id);
       if (this.auth) {
         response = await axios.get(`/api/${this.tableName}?auth=${this.auth}`);
       } else {
-        response = await axios.get(`/api/${this.tableName}?id=${this.id}`);
+        const identifierField = this.getIdentifierField();
+        response = await axios.get(
+          `/api/${this.tableName}?${identifierField}=${this.identifier}`
+        );
       }
 
       Object.assign(this, response.data);
       return this.toJSON();
     } catch (error) {
-      console.log("error : ", error);
-      // const supabase = createClient();
-      // await supabase.auth.signOut();
-      // throw new Error(`Error fetching item with ID ${this.id} for ${this.tableName}`);
-      return null; // Add this line
+      throw new Error(`Error fetching item for ${this.tableName}`);
     }
   }
 
   save() {
-    if (this.id) {
+    if (this.identifier) {
       return this.update();
     }
     return this.create();
@@ -72,19 +89,15 @@ export abstract class Model {
 
   // POST 요청을 통해 새 항목을 생성하는 메서드
   async create(): Promise<any> {
-    console.log("create this.tableName : ", this.tableName);
     if (!this.tableName) {
       throw new Error("Table name is required to create");
     }
 
-    if (this?.id) {
-      throw new Error("ID is not allowed to create");
+    if (this?.identifier) {
+      throw new Error("Identifier is not allowed to create");
     }
 
-    const body = this._getBody();
-
-    console.log("body : ", body);
-    console.log("this.tableName : ", this.tableName);
+    const body = this.getBody();
 
     try {
       const response = await axios.post(`/api/${this.tableName}`, body);
@@ -94,60 +107,55 @@ export abstract class Model {
       }
       return this;
     } catch (error) {
-      console.log("error : ", error);
       throw new Error(`Error creating item for ${this.tableName}`);
     }
   }
 
   // patch 요청을 통해 항목을 업데이트하는 메서드
   async update(): Promise<any> {
-    console.log("update started : ", this.tableName);
-    const body = this._getBody();
-
-    console.log("body : ", body);
-    console.log("this.tableName : ", this.tableName);
+    const body = this.getBody();
 
     try {
+      const identifierField = this.getIdentifierField();
       const response = await axios.patch(
-        `/api/${this.tableName}?id=${this.id}`,
+        `/api/${this.tableName}?${identifierField}=${this.identifier}`,
         body
       );
       return response.data;
     } catch (error) {
       throw new Error(
-        `Error updating item with ID ${id} for ${this.tableName}`
+        `Error updating item with identifier ${this.identifier} for ${this.tableName}`
       );
     }
   }
 
   // DELETE 요청을 통해 항목을 삭제하는 메서드
   async delete(): Promise<boolean> {
-    if (!this.id) {
-      throw new Error("ID is required to delete");
+    if (!this.identifier) {
+      throw new Error("Identifier is required to delete");
     }
 
     try {
+      const identifierField = this.getIdentifierField();
       const response = await axios.delete(
-        `/api/${this.tableName}?id=${this.id}`
+        `/api/${this.tableName}?${identifierField}=${this.identifier}`
       );
       return response.status === 200;
     } catch (error) {
       throw new Error(
-        `Error deleting item with ID ${this.id} for ${this.tableName}`
+        `Error deleting item with identifier ${this.identifier} for ${this.tableName}`
       );
     }
   }
 
-  private _getBody() {
+  public getBody() {
     const body = { ...this };
-    const getMetadataObj = metaFields[
-      this.tableName as keyof typeof metaFields
-    ].reduce((acc: any, cur: any) => {
+    const getMetadataObj = (
+      metaFields[this.tableName as keyof typeof metaFields] as any[]
+    ).reduce((acc: any, cur: any) => {
       acc[cur.name] = cur;
       return acc;
     }, {});
-
-    console.log("getBody : ", getMetadataObj);
 
     for (const key in body) {
       if (key === "id" && body[key] === null) {
@@ -166,16 +174,29 @@ export abstract class Model {
         delete body[key];
       }
 
-      if (getMetadataObj[key] && !!getMetadataObj[key]?.relationName) {
-        if (getMetadataObj[key]?.isList) {
+      if (
+        getMetadataObj[key] &&
+        !!getMetadataObj[key]?.relationName &&
+        body[key]
+      ) {
+        if (getMetadataObj[key]?.isList && Array.isArray(body[key])) {
           body[key] = body[key].map((item: any) => {
-            if (item.id) {
-              return { id: item.id };
+            if (item?.getBody) {
+              return item.getBody();
+            } else {
+              return item;
             }
           });
         } else {
-          body[`${key}Id`] = body[key]?.id || null;
-          delete body[key];
+          try {
+            if (body[key]?.getBody) {
+              body[key] = body[key].getBody();
+            } else {
+              return body[key];
+            }
+          } catch (error) {
+            throw new Error("Error getting body for " + key);
+          }
         }
       }
 
@@ -211,5 +232,25 @@ export abstract class Model {
         this.images.splice(index, 1);
       }
     }
+  }
+
+  // getIdentifierField 메서드는 이제 identifier getter와 중복되므로 제거하고
+  // identifier getter를 사용하도록 수정
+  protected getIdentifierField(): string {
+    const metadata = metaFields[
+      this.tableName as keyof typeof metaFields
+    ] as any[];
+    // id 필드가 있으면 id를 사용
+    const idField = metadata.find((field: any) => field.name === "id");
+    if (idField) {
+      return "id";
+    }
+    // id가 없으면 name을 사용
+    const nameField = metadata.find((field: any) => field.name === "name");
+    if (nameField) {
+      return "name";
+    }
+    // 둘 다 없으면 첫 번째 필드를 사용
+    return metadata[0].name;
   }
 }

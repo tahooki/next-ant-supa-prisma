@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 
@@ -16,22 +16,25 @@ export async function upload(
     const formData = new FormData();
     formData.append("cacheControl", "3600");
     formData.append("", blob);
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     const accessToken = session?.access_token;
     const timestamp = Date.now();
 
     const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/${bucket}/${timestamp}-${name}`;
-    
+
     console.log(url, formData);
-    
+
     const headers = {
       "Content-Type": "multipart/form-data",
       // @ts-ignore
       ...supabase.headers,
-      "Authorization": `Bearer ${accessToken}`,
+      Authorization: `Bearer ${accessToken}`,
     };
 
-    axios.post(url, formData, {
+    axios
+      .post(url, formData, {
         headers: headers,
         onUploadProgress: config?.onUploadProgress,
         onDownloadProgress: config?.onDownloadProgress,
