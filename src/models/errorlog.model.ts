@@ -4,7 +4,7 @@ import { UserModel } from "@/models/user.model";
 export class ErrorLogModel extends Model {
   tableName = "errorlog";
 
-  id: string | undefined;
+  id: number | null;
   timestamp: string | undefined;
   errorMessage: string | undefined;
   stackTrace: string | undefined;
@@ -21,7 +21,7 @@ export class ErrorLogModel extends Model {
   constructor(data: Partial<ErrorLogModel> = {}) {
     super();
 
-    this.id = data.id ?? undefined;
+    this.id = data.id ?? null;
     this.timestamp = data.timestamp ?? undefined;
     this.errorMessage = data.errorMessage ?? undefined;
     this.stackTrace = data.stackTrace ?? undefined;
