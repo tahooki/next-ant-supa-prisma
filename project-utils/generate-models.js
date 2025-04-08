@@ -1,4 +1,4 @@
-const { getDMMF } = require("@prisma/sdk");
+const { getDMMF } = require("@prisma/internals");
 const fs = require("fs");
 const path = require("path");
 
