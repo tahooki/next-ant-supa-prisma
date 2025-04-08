@@ -1,4 +1,4 @@
-import { logError } from "@/lib/error-logging";
+import { logError } from "@/lib/db/logger/error-logging";
 import axios, { AxiosResponse } from "axios";
 
 export type RequestResponse<T = any> = AxiosResponse<T> & {

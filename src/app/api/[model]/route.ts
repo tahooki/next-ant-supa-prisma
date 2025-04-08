@@ -3,8 +3,8 @@ import {
   deleteModel,
   getModel,
   updateModel,
-} from "@/lib/prisma-service";
-import { processPrismaData } from "@/lib/prisma-utils";
+} from "@/lib/db/prisma-service";
+import { processPrismaData } from "@/lib/db/prisma-utils";
 import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 

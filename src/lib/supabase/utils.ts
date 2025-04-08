@@ -1,4 +1,4 @@
-import { requestGet } from "@/app/(apis)/model.api";
+import { requestGet } from "@/app/api/(utils)/model.api";
 import { createClient } from "@/lib/supabase/server";
 
 export async function refreshUserModel(userId: string) {

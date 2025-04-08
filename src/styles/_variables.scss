@@ -1,0 +1,39 @@
+@mixin pc-style {
+  @media (min-width: 960px) {
+    @content
+  }
+}
+
+@mixin mobile-style {
+  @media (max-width: 959px) {
+    @content
+  }
+}
+
+.pc {
+  display: none !important;
+  @include pc-style {
+    display: block !important;
+  }
+}
+
+.pc-flex {
+  display: none !important;
+  @include pc-style {
+    display: flex !important;
+  }
+}
+
+.mobile {
+  display: none !important;
+  @include mobile-style {
+    display: block !important;
+  }
+}
+
+.mobile-flex {
+  display: none !important;
+  @include mobile-style {
+    display: flex !important;
+  }
+}

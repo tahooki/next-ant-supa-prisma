@@ -5,8 +5,8 @@ import { UserModel } from "@/models/user.model";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import "antd/dist/reset.css";
 import React from "react";
-import { requestModel } from "./(apis)/model.api";
-import LayoutHeader from "./(layout)/header";
+import LayoutHeader from "../components/layouts/header";
+import { requestModel } from "./api/(utils)/model.api";
 import "./globals.css";
 import initAxios from "./init-axios";
 
